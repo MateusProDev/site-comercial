@@ -3,12 +3,15 @@ import { db } from "../../../firebase/firebase"; // Certifique-se de que o camin
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
+import './EditHeader.css'; 
+
 const EditHeader = () => {
   const navigate = useNavigate();
   const [logoUrl, setLogoUrl] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState(""); // URL da imagem
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(""); // Nova variável para mensagem de sucesso
 
   useEffect(() => {
     // Busca a logo atual no Firestore
@@ -26,9 +29,9 @@ const EditHeader = () => {
     fetchHeaderData();
   }, []);
 
-  // Função de validação simples para verificar se a URL é uma imagem
+  // Função de validação mais robusta para verificar se a URL é uma imagem válida
   const validateUrl = (url) => {
-    const regex = /\.(jpg|jpeg|png|gif)$/i;
+    const regex = /^(https?:\/\/)(.*\.(?:jpg|jpeg|png|gif))$/i;
     return regex.test(url);
   };
 
@@ -46,6 +49,7 @@ const EditHeader = () => {
 
     setLoading(true);
     setError("");
+    setSuccess(""); // Limpar a mensagem de sucesso ao iniciar o processo
 
     try {
       // Atualiza o Firestore com a nova URL da logo
@@ -53,8 +57,9 @@ const EditHeader = () => {
       await setDoc(headerRef, { logoUrl: newLogoUrl });
 
       setLogoUrl(newLogoUrl); // Atualiza o estado para exibir a nova logo
-      alert("Logo atualizada com sucesso!");
-      navigate("/admin/dashboard");
+      setSuccess("Logo atualizada com sucesso!"); // Mensagem de sucesso
+      setNewLogoUrl(""); // Limpa o campo de input
+      setTimeout(() => navigate("/admin/dashboard"), 2000); // Redireciona após 2 segundos
     } catch (error) {
       console.error("Erro ao atualizar a logo:", error);
       setError("Erro ao salvar a nova logo.");
@@ -66,8 +71,15 @@ const EditHeader = () => {
   return (
     <div className="edit-header">
       <h2>Editar Logo</h2>
+
+      {/* Exibe a mensagem de erro, se houver */}
       {error && <p className="error">{error}</p>}
+
+      {/* Exibe a imagem atual da logo */}
       {logoUrl && <img src={logoUrl} alt="Logo Atual" className="logo-preview" />}
+
+      {/* Exibe a mensagem de sucesso, se houver */}
+      {success && <p className="success">{success}</p>}
 
       <form onSubmit={handleSubmit}>
         <div>
@@ -79,6 +91,15 @@ const EditHeader = () => {
             onChange={(e) => setNewLogoUrl(e.target.value)}
           />
         </div>
+
+        {/* Exibe a imagem de preview, caso a URL seja válida */}
+        {newLogoUrl && validateUrl(newLogoUrl) && (
+          <div>
+            <h4>Pré-visualização:</h4>
+            <img src={newLogoUrl} alt="Pré-visualização" className="logo-preview" />
+          </div>
+        )}
+
         <button type="submit" disabled={loading}>
           {loading ? "Salvando..." : "Salvar"}
         </button>
@@ -87,7 +108,7 @@ const EditHeader = () => {
       <div className="info-converter">
         <p>
           Para alterar a logo, você precisa fornecer a URL de uma imagem válida.
-          Se você não tem uma URL, use um <a href="https://postimages.org/">Conversor de Imagem para URL</a>.
+          Se você não tem uma URL, use um <a href="https://freeimage.host/">Conversor de Imagem para URL</a>.
         </p>
       </div>
     </div>
