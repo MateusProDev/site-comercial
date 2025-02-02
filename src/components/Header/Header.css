@@ -1,0 +1,75 @@
+/* src/components/Header/Header.css */
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: #333;
+    color: white;
+  }
+  
+  header .logo img {
+    height: 40px;
+  }
+  
+  header nav ul {
+    list-style: none;
+    display: flex;
+  }
+  
+  header nav ul li {
+    margin-left: 20px;
+  }
+  
+  header nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+  }
+  /* Header.css */
+
+/* Estilos para telas grandes (desktop) */
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+  }
+  
+  .navbar {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .navbar a {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+  }
+  
+  /* Estilos para telas médias (tablets) */
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .navbar {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .navbar a {
+      font-size: 16px;
+    }
+  }
+  
+  /* Estilos para telas pequenas (celulares) */
+  @media (max-width: 480px) {
+    .header {
+      padding: 10px 20px;
+    }
+  
+    .navbar a {
+      font-size: 14px;
+    }
+  }
+  

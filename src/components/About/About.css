@@ -1,0 +1,69 @@
+.edit-about {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.edit-about h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.edit-about label {
+  font-size: 16px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.edit-about textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  height: 150px;
+  resize: vertical;
+}
+
+.edit-about button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-about button:hover {
+  background-color: #45a049;
+}
+
+.error {
+  color: red;
+  margin-bottom: 15px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .edit-about {
+    padding: 15px;
+  }
+
+  .edit-about h2 {
+    font-size: 22px;
+  }
+
+  .edit-about button {
+    padding: 10px;
+    font-size: 16px;
+  }
+}
