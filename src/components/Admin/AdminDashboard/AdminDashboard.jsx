@@ -4,6 +4,9 @@ import { auth } from "../../../firebase/firebase";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
+  const goToEditHeader = () => {
+  navigate("/admin/edit-header");
+};
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -37,11 +40,12 @@ const AdminDashboard = () => {
       
       {/* Botões de Navegação */}
       <div className="admin-actions">
-        <button onClick={goToHome}>Voltar para a Home</button>
+        <button onClick={goToEditHeader}>Editar Logo</button>
         <button onClick={goToEditBanner}>Editar Banner</button>
         <button onClick={goToEditBoxes}>Editar Boxes</button>
         <button onClick={goToEditAbout}>Editar Sobre</button>
         <button onClick={goToEditFooter}>Editar Rodapé</button>
+        <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 
       {/* Logout */}
