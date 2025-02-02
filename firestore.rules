@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /content/{documentId} {
+      // Permite leitura para qualquer usuário (público)
+      allow read: if true;
+
+      // Permite escrita apenas para usuários autenticados
+      allow write: if request.auth != null;
+    }
+  }
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /logos/{allPaths=**} {
+      // Permite leitura pública das imagens da logo
+      allow read: if true;
+
+      // Permite escrita apenas para usuários autenticados
+      allow write: if request.auth != null;
+    }
+  }
+}
