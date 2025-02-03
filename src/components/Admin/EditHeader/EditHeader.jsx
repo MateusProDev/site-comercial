@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { db } from "../../../firebase/firebase"; // Certifique-se de que o caminho está correto
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-import './EditHeader.css'; 
+import './EditHeader.css';
 
 const EditHeader = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const EditHeader = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(""); // Nova variável para mensagem de sucesso
+  const [image, setImage] = useState(null); // Armazena a imagem selecionada
 
   useEffect(() => {
     // Busca a logo atual no Firestore
@@ -29,21 +31,48 @@ const EditHeader = () => {
     fetchHeaderData();
   }, []);
 
-  // Função de validação mais robusta para verificar se a URL é uma imagem válida
-  const validateUrl = (url) => {
-    const regex = /^(https?:\/\/)(.*\.(?:jpg|jpeg|png|gif))$/i;
-    return regex.test(url);
+  // Função de upload para o Cloudinary
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
   };
 
+  const handleUpload = async () => {
+    if (!image) {
+      alert("Por favor, selecione uma imagem!");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSuccess(""); // Limpar a mensagem de sucesso ao iniciar o processo
+
+    const formData = new FormData();
+    formData.append("file", image);
+    formData.append("upload_preset", "qc7tkpck"); // Usando seu Upload Preset
+    formData.append("cloud_name", "doeiv6m4h"); // Seu Cloud Name
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload`, // Usando seu Cloud Name
+        formData
+      );
+
+      const imageUrl = response.data.secure_url;
+      setNewLogoUrl(imageUrl); // Atualiza a URL da imagem no estado
+      alert("Imagem enviada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao enviar imagem:", error);
+      alert("Erro ao enviar imagem!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para salvar a nova logo no Firestore
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newLogoUrl) {
       setError("Informe a URL da imagem.");
-      return;
-    }
-
-    if (!validateUrl(newLogoUrl)) {
-      setError("A URL fornecida não é válida. Certifique-se de que é um link de imagem.");
       return;
     }
 
@@ -58,7 +87,6 @@ const EditHeader = () => {
 
       setLogoUrl(newLogoUrl); // Atualiza o estado para exibir a nova logo
       setSuccess("Logo atualizada com sucesso!"); // Mensagem de sucesso
-      setNewLogoUrl(""); // Limpa o campo de input
       setTimeout(() => navigate("/admin/dashboard"), 2000); // Redireciona após 2 segundos
     } catch (error) {
       console.error("Erro ao atualizar a logo:", error);
@@ -81,36 +109,28 @@ const EditHeader = () => {
       {/* Exibe a mensagem de sucesso, se houver */}
       {success && <p className="success">{success}</p>}
 
-      <form onSubmit={handleSubmit}>
+      {/* Upload da nova logo */}
+      <div>
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+        <button onClick={handleUpload} disabled={loading}>
+          {loading ? "Enviando..." : "Enviar Imagem"}
+        </button>
+      </div>
+
+      {/* Exibe a pré-visualização da imagem, se houver uma URL válida */}
+      {newLogoUrl && (
         <div>
-          <label>Informe a URL da nova logo:</label>
-          <input
-            type="text"
-            placeholder="Cole a URL da imagem"
-            value={newLogoUrl}
-            onChange={(e) => setNewLogoUrl(e.target.value)}
-          />
+          <h4>Pré-visualização:</h4>
+          <img src={newLogoUrl} alt="Pré-visualização" className="logo-preview" />
         </div>
+      )}
 
-        {/* Exibe a imagem de preview, caso a URL seja válida */}
-        {newLogoUrl && validateUrl(newLogoUrl) && (
-          <div>
-            <h4>Pré-visualização:</h4>
-            <img src={newLogoUrl} alt="Pré-visualização" className="logo-preview" />
-          </div>
-        )}
-
+      {/* Botão para salvar a nova logo */}
+      <form onSubmit={handleSubmit}>
         <button type="submit" disabled={loading}>
-          {loading ? "Salvando..." : "Salvar"}
+          {loading ? "Salvando..." : "Salvar Logo"}
         </button>
       </form>
-
-      <div className="info-converter">
-        <p>
-          Para alterar a logo, você precisa fornecer a URL de uma imagem válida.
-          Se você não tem uma URL, use um <a href="https://freeimage.host/">Conversor de Imagem para URL</a>.
-        </p>
-      </div>
     </div>
   );
 };
