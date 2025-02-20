@@ -9,6 +9,9 @@
   text-align: center;
   margin-bottom: 20px;
 }
+.content {
+  white-space: pre-wrap; /* Isso preserva as quebras de linha no conteúdo */
+}
 
 /* Container para os campos de edição de cada box */
 .box-edit {

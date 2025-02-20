@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home/Home";
-import Admin from "./pages/Admin/Admin";
+import AboutPage from "./pages/AboutPage/AboutPage";
 import AdminLogin from "./components/Admin/AdminLogin/AdminLogin";
 import AdminDashboard from "./components/Admin/AdminDashboard/AdminDashboard";
 import EditBanner from "./components/Admin/EditBanner/EditBanner";
@@ -15,6 +15,7 @@ const App = () => {
       <Routes>
         <Route path="/admin/edit-header" element={<EditHeader />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/edit-banner" element={<EditBanner />} />
         <Route path="/admin/edit-boxes" element={<EditBoxes />} />

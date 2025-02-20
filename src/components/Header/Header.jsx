@@ -3,9 +3,11 @@ import './Header.css';
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase/firebase'; // Certifique-se de que o caminho está correto
 import { doc, getDoc } from 'firebase/firestore';
+import { FiMenu, FiX } from 'react-icons/fi'; // Ícones para o menu hambúrguer
 
 const Header = () => {
   const [logoUrl, setLogoUrl] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     // Busca a logo atual no Firestore
@@ -34,11 +36,16 @@ const Header = () => {
           <p>Logo não disponível</p>
         )}
       </div>
-      <nav>
+      
+      <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+        {menuOpen ? <FiX /> : <FiMenu />}
+      </button>
+
+      <nav className={menuOpen ? "nav-open" : ""}>
         <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/about">Sobre</Link></li>
-          <li><Link to="/admin/login">Admin</Link></li>
+          <li><Link to="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
+          <li><Link to="/about" onClick={() => setMenuOpen(false)}>Sobre</Link></li>
+          <li><Link to="/admin/login" onClick={() => setMenuOpen(false)}>Admin</Link></li>
         </ul>
       </nav>
     </header>

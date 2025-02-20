@@ -1,75 +1,135 @@
-/* src/components/Header/Header.css */
-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    background-color: #333;
-    color: white;
-  }
-  
-  header .logo img {
-    height: 40px;
-  }
-  
-  header nav ul {
-    list-style: none;
-    display: flex;
-  }
-  
-  header nav ul li {
-    margin-left: 20px;
-  }
-  
-  header nav ul li a {
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-  }
-  /* Header.css */
+/* Header.css */
 
-/* Estilos para telas grandes (desktop) */
-.header {
+/* Estilos gerais */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #333;
+  color: white;
+  position: relative;
+  max-width: auto;
+  margin: 0 auto; /* Centraliza o header na tela */
+}
+
+/* Logo */
+.logo img {
+  max-height: 50px;
+}
+
+/* Botão de menu (hambúrguer) */
+.menu-toggle {
+  width: 100px;
+  height: 100px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  display: none; /* Oculto em telas grandes */
+  z-index: 3;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Menu de navegação */
+nav {
+  display: flex;
+  gap: 2rem;
+}
+
+nav ul {
+  display: flex;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  padding: 10px;
+  display: inline-block;
+}
+
+/* Menu responsivo */
+.nav {
+  transform: translateX(100%); /* Menu inicialmente oculto */
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: #333;
+  height: 100vh;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  transition: transform 0.3s ease-in-out;
+}
+
+.nav-open {
+  transform: translateX(0); /* Exibe o menu */
+}
+
+/* Estilos para telas pequenas */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block; /* Exibe o botão de menu */
+    right: 0px; /* Alinhado à direita */
+  }
+
+  nav {
     display: flex;
-    justify-content: space-between;
-    padding: 20px 40px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #333;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: translateX(100%);
+  }
+
+  nav ul {
+    flex-direction: column;
+  }
+
+  nav ul li a {
+    padding: 15px;
+    width: 100%;
+    border-bottom: 1px solid #444;
+  }
+
+  nav.nav-open {
+    transform: translateX(0);
   }
   
-  .navbar {
+}
+
+/* Estilos para telas maiores (desktop) */
+@media (min-width: 769px) {
+  .menu-toggle {
+    display: none; /* Oculta o botão de menu */
+  }
+
+  nav {
     display: flex;
-    gap: 20px;
+    gap: 2rem;
+    margin-left: -100px; /* Alinha o menu à direita */
   }
-  
-  .navbar a {
-    text-decoration: none;
-    color: #333;
-    font-size: 18px;
+
+  nav ul {
+    display: flex;
+    flex-direction: row;
   }
-  
-  /* Estilos para telas médias (tablets) */
-  @media (max-width: 768px) {
-    .header {
-      flex-direction: column;
-      text-align: center;
-    }
-  
-    .navbar {
-      flex-direction: column;
-      gap: 10px;
-    }
-  
-    .navbar a {
-      font-size: 16px;
-    }
+
+  nav ul li a {
+    padding: 10px 20px;
   }
-  
-  /* Estilos para telas pequenas (celulares) */
-  @media (max-width: 480px) {
-    .header {
-      padding: 10px 20px;
-    }
-  
-    .navbar a {
-      font-size: 14px;
-    }
-  }
-  
+}

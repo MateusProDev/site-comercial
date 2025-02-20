@@ -1,33 +1,39 @@
-// src/components/About/About.js
-import React, { useState, useEffect } from 'react';
-import { db } from "../../firebase/firebase"; // Certifique-se de que o caminho está correto
-import { doc, getDoc } from "firebase/firestore"; // Função para obter dados do Firestore
-import './About.css';
+import React, { useState, useEffect } from "react";
+import { db } from "../../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import "./About.css";
 
 const About = () => {
-  const [aboutText, setAboutText] = useState("");
+  const [aboutText, setAboutText] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Carregar dados "Sobre" do Firestore
     const fetchAboutData = async () => {
-      const aboutRef = doc(db, "content", "about");
-      const aboutDoc = await getDoc(aboutRef);
+      try {
+        const aboutRef = doc(db, "content", "about");
+        const aboutDoc = await getDoc(aboutRef);
 
-      if (aboutDoc.exists()) {
-        setAboutText(aboutDoc.data().text);
-      } else {
-        console.log("Sobre não encontrado!");
+        if (aboutDoc.exists()) {
+          setAboutText(aboutDoc.data().text);
+        } else {
+          console.log("Documento 'about' não encontrado!");
+          setAboutText("Conteúdo não disponível.");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do Firestore:", error);
+        setAboutText("Erro ao carregar informações.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAboutData();
-  }, []); // O array vazio garante que o fetch seja executado uma vez na montagem
+  }, []);
 
   return (
     <section className="about">
       <h2>Sobre Nós</h2>
-      {/* Exibe o texto "Sobre" dinâmicamente */}
-      <p>{aboutText || "Carregando..."}</p>
+      {loading ? <p>Carregando...</p> : <p>{aboutText}</p>}
     </section>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../../firebase/firebase";
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore"; 
+import { doc, setDoc, onSnapshot } from "firebase/firestore"; 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -10,9 +10,6 @@ const EditBoxes = () => {
   const [box1, setBox1] = useState({ title: "", content: "", imageUrl: "" });
   const [box2, setBox2] = useState({ title: "", content: "", imageUrl: "" });
   const [box3, setBox3] = useState({ title: "", content: "", imageUrl: "" });
-  const [image1, setImage1] = useState(null); // Imagem Box 1
-  const [image2, setImage2] = useState(null); // Imagem Box 2
-  const [image3, setImage3] = useState(null); // Imagem Box 3
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -106,11 +103,13 @@ const EditBoxes = () => {
             onChange={(e) => setBox1({ ...box1, title: e.target.value })}
             required
           />
+          
           <label>Conteúdo Box 1</label>
           <textarea
             value={box1.content}
             onChange={(e) => setBox1({ ...box1, content: e.target.value })}
             required
+            rows="5"
           />
         </div>
 
@@ -130,11 +129,13 @@ const EditBoxes = () => {
             onChange={(e) => setBox2({ ...box2, title: e.target.value })}
             required
           />
+          
           <label>Conteúdo Box 2</label>
           <textarea
             value={box2.content}
             onChange={(e) => setBox2({ ...box2, content: e.target.value })}
             required
+            rows="5"
           />
         </div>
 
@@ -154,11 +155,13 @@ const EditBoxes = () => {
             onChange={(e) => setBox3({ ...box3, title: e.target.value })}
             required
           />
+          
           <label>Conteúdo Box 3</label>
           <textarea
             value={box3.content}
             onChange={(e) => setBox3({ ...box3, content: e.target.value })}
             required
+            rows="5"
           />
         </div>
 
