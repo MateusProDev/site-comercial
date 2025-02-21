@@ -1,59 +1,72 @@
-/* src/components/Boxes/Boxes.css */
+/* Estilização principal */
 .boxes {
-    display: flex;
-    justify-content: space-between;
-    padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 40px;
+}
+
+/* Cada box individual */
+.box {
+  width: 30%;
+  max-width: 250px;
+  background-color: #fff;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Efeito hover */
+.box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Imagem dentro do box */
+.box img {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Título do box */
+.box h3 {
+  font-size: 1.5rem;
+  margin-top: 15px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Texto do box */
+.box p {
+  font-size: 1rem;
+  color: #666;
+  padding: 10px;
+}
+
+/* Responsividade para tablets e celulares */
+@media (max-width: 1024px) {
+  .boxes {
+    flex-direction: column;
+    align-items: center;
   }
-  
+
   .box {
-    background-color: #e0e0e0;
-    padding: 1rem;
-    width: 30%;
-    text-align: center;
-    border-radius: 8px;
+    width: 90%;
   }
-  
-  .box h3 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-  }
-  
-  .box p {
-    font-size: 1rem;
-  }
-  /* Boxes.css */
-.boxes {
-    display: flex;
-    justify-content: space-around;
-    gap: 20px;
-    padding: 20px;
-  }
-  
+}
+
+/* Responsividade para celulares */
+@media (max-width: 600px) {
   .box {
-    width: 30%;
-    padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 8px;
-    text-align: center;
+    width: 100%;
+    max-width: 400px;
+    margin-left: -20px !important;
   }
-  
-  /* Estilos para telas médias (tablets) */
-  @media (max-width: 768px) {
-    .boxes {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .box {
-      width: 80%;
-      margin-bottom: 20px;
-    }
-  }
-  
-  /* Estilos para telas pequenas (celulares) */
-  @media (max-width: 480px) {
-    .box {
-      width: 100%;
-    }
-  }
-  
+}
