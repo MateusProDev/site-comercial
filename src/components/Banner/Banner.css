@@ -1,9 +1,8 @@
 /* Estilos para o banner */
 .banner {
   padding: 40px;
-  background-color: #a4aaa4; /* Cor de fundo do banner */
+  background-color: #707070; /* Cor de fundo do banner */
   color: white;
-  border-radius: 8px;
   text-align: center;
   max-width: 900px; /* Tamanho máximo para o banner */
   margin: 20px auto; /* Margem superior e inferior, centralizado na página */
@@ -34,15 +33,17 @@
 @media (max-width: 768px) {
   .banner {
     padding: 20px;
-    margin: 10px auto;
+    margin: 2px auto;
   }
 
   .banner h1 {
     font-size: 28px;
+    margin-top: 10px;
   }
 
   .banner p {
     font-size: 16px;
+    margin: -10px 0 -10px 0;
   }
 
   .banner img {

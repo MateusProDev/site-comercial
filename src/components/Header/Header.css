@@ -104,6 +104,7 @@ nav ul li a {
     padding: 15px;
     width: 100%;
     border-bottom: 1px solid #444;
+    font-size: 20px;
   }
 
   nav.nav-open {
