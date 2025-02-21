@@ -28,7 +28,7 @@ header {
   color: white;
   cursor: pointer;
   display: none; /* Oculto em telas grandes */
-  z-index: 3;
+  z-index: 999;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -94,6 +94,7 @@ nav ul li a {
     justify-content: center;
     align-items: center;
     transform: translateX(100%);
+    z-index: 997;
   }
 
   nav ul {

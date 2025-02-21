@@ -1,52 +1,82 @@
-/* Estilos para o banner */
+/* Estiliza a seção do banner */
 .banner {
-  padding: 40px;
-  background-color: #707070; /* Cor de fundo do banner */
-  color: white;
+  position: relative;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  max-width: 900px; /* Tamanho máximo para o banner */
-  margin: 20px auto; /* Margem superior e inferior, centralizado na página */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  color: white;
+  overflow: hidden;
 }
 
-.banner h1 {
-  font-size: 36px;
-  margin-top:-10px;
-  font-weight: bold;
-  color: #fff; /* Cor do título */
+/* Imagem de fundo separada */
+.banner-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -2;
 }
 
-.banner p {
-  font-size: 18px;
-  margin-top: -20px;
-  color: #fff; /* Cor da descrição */
+/* Camada escura mais intensa para melhor contraste */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Agora está mais escuro */
+  z-index: -1;
 }
 
-.banner img {
-  width: 100%; /* A imagem do banner ocupa toda a largura */
-  max-height: 350px; /* Define um tamanho máximo para a altura da imagem */
-  object-fit: cover; /* A imagem vai cobrir o espaço disponível sem distorcer */
+/* Imagem principal */
+.banner-image {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
   border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+/* Título */
+.banner h1 {
+  font-size: 48px;
+  font-weight: bold;
+  margin-top: 20px;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 2;
+}
+
+/* Descrição */
+.banner p {
+  font-size: 22px;
+  max-width: 600px;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  position: relative;
+  z-index: 2;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .banner {
-    padding: 20px;
-    margin: 2px auto;
-  }
-
   .banner h1 {
-    font-size: 28px;
-    margin-top: 10px;
+    font-size: 32px;
   }
 
   .banner p {
-    font-size: 16px;
-    margin: -10px 0 -10px 0;
+    font-size: 18px;
+    padding: 0 20px;
   }
 
-  .banner img {
-    max-height: 300px; /* Reduz a altura máxima da imagem em telas menores */
+  .banner-image {
+    max-width: 90%;
   }
 }
