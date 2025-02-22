@@ -209,10 +209,14 @@ body {
 }
 
 .box h3 {
-  font-size: 20px;
   text-align: center;
-  
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  font-size: 22px;
+  margin-top: 20px;
 }
+
 .box h4 {
   font-size: 1.2rem;
   color: #333;
