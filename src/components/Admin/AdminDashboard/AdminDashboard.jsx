@@ -1,21 +1,14 @@
+// src/components/Admin/AdminDashboard/AdminDashboard.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../../firebase/firebase";
 import "./AdminDashboard.css";
 
 const AdminDashboard = () => {
-  const goToEditHeader = () => {
-  navigate("/admin/edit-header");
-};
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await auth.signOut();
-    navigate("/admin/login");
-  };
-
-  const goToHome = () => {
-    navigate("/");
+  const goToEditHeader = () => {
+    navigate("/admin/edit-header");
   };
 
   const goToEditBanner = () => {
@@ -34,6 +27,19 @@ const AdminDashboard = () => {
     navigate("/admin/edit-footer");
   };
 
+  const goToEditWhatsapp = () => {
+    navigate("/admin/edit-whatsapp");
+  };
+
+  const goToHome = () => {
+    navigate("/");
+  };
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    navigate("/admin/login");
+  };
+
   return (
     <div className="admin-dashboard">
       <h2>Painel de Administração</h2>
@@ -45,6 +51,7 @@ const AdminDashboard = () => {
         <button onClick={goToEditBoxes}>Editar Boxes</button>
         <button onClick={goToEditAbout}>Editar Sobre</button>
         <button onClick={goToEditFooter}>Editar Rodapé</button>
+        <button onClick={goToEditWhatsapp}>Editar WhatsApp</button>
         <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 

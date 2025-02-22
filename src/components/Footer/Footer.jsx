@@ -1,6 +1,6 @@
 // src/components/Footer/Footer.js
 import React, { useState, useEffect } from "react";
-import { db } from "../../firebase/firebase"; // Verifique o caminho
+import { db } from "../../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import "./Footer.css";
 
@@ -84,6 +84,23 @@ const Footer = () => {
             })}
         </div>
 
+        {/* Mapa (abaixo do menu) */}
+        {footerData.contact?.address && (
+          <div className="footer-map">
+            <iframe
+              title="Localização da Empresa"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(
+                footerData.contact.address
+              )}&output=embed`}
+              width="100%"
+              height="300"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+            ></iframe>
+          </div>
+        )}
+
         {/* Informações de Contato */}
         <div className="footer-contact">
           {footerData.contact && (
@@ -94,6 +111,9 @@ const Footer = () => {
               {footerData.contact.email && (
                 <p>Email: {footerData.contact.email}</p>
               )}
+              {footerData.contact.address && (
+                <p>Endereço: {footerData.contact.address}</p>
+              )}
             </>
           )}
         </div>
@@ -101,7 +121,8 @@ const Footer = () => {
         {/* Direitos Autorais */}
         <div className="footer-bottom">
           <p>
-            &copy; {new Date().getFullYear()} Sua Empresa. Todos os direitos
+            &copy; {footerData.year || new Date().getFullYear()}{" "}
+            {footerData.companyName || "Sua Empresa"}. Todos os direitos
             reservados.
           </p>
         </div>

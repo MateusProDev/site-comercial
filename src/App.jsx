@@ -1,3 +1,4 @@
+// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home/Home";
@@ -9,6 +10,8 @@ import EditBoxes from "./components/Admin/EditBoxes/EditBoxes";
 import EditAbout from "./components/Admin/EditAbout/EditAbout";
 import EditFooter from "./components/Admin/EditFooter/EditFooter";
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
+import AdminWhatsAppConfig from "./components/Admin/AdminWhatsAppConfig/AdminWhatsAppConfig";
+
 const App = () => {
   return (
     <Router>
@@ -21,6 +24,7 @@ const App = () => {
         <Route path="/admin/edit-boxes" element={<EditBoxes />} />
         <Route path="/admin/edit-about" element={<EditAbout />} />
         <Route path="/admin/edit-footer" element={<EditFooter />} />
+        <Route path="/admin/edit-whatsapp" element={<AdminWhatsAppConfig />} />
         <Route path="/" element={<Home />} />
       </Routes>
     </Router>

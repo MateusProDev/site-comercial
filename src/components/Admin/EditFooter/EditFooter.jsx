@@ -20,10 +20,12 @@ const availableIcons = {
   linkedin: [{ label: "LinkedIn Icon 1", value: liIcon1 }],
 };
 
-// Estado inicial completo
+// Estado inicial completo (agora com companyName e year)
 const initialFooterData = {
   text: "",
   logo: "",
+  companyName: "",
+  year: new Date().getFullYear(),
   contact: { phone: "", email: "", address: "" },
   social: {
     facebook: { link: "", logo: "", title: "Facebook" },
@@ -52,6 +54,8 @@ const EditFooter = () => {
           setFooterData({
             text: data.text || "",
             logo: data.logo || "",
+            companyName: data.companyName || "",
+            year: data.year || new Date().getFullYear(),
             contact: { ...initialFooterData.contact, ...(data.contact || {}) },
             social: { ...initialFooterData.social, ...(data.social || {}) },
             menu: { ...initialFooterData.menu, ...(data.menu || {}) },
@@ -96,7 +100,7 @@ const EditFooter = () => {
   // Manipula o upload de imagem para a logo ou para os ícones de redes sociais
   const handleFileChange = async (e, field, network = null) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file || loading) return; // Impede uploads duplicados
     setLoading(true);
     setError("");
     try {
@@ -175,6 +179,7 @@ const EditFooter = () => {
             type="file"
             accept="image/*"
             onChange={(e) => handleFileChange(e, "logo")}
+            disabled={loading}
           />
           {footerData.logo && (
             <img
@@ -183,6 +188,25 @@ const EditFooter = () => {
               className="footer-logo-preview"
             />
           )}
+        </div>
+
+        {/* Informações da Empresa */}
+        <div className="form-section">
+          <h3>Informações da Empresa</h3>
+          <label>Nome da Empresa</label>
+          <input
+            type="text"
+            value={footerData.companyName}
+            onChange={(e) => updateFooterField("companyName", e.target.value)}
+            required
+          />
+          <label>Ano</label>
+          <input
+            type="number"
+            value={footerData.year}
+            onChange={(e) => updateFooterField("year", e.target.value)}
+            required
+          />
         </div>
 
         {/* Contato */}
