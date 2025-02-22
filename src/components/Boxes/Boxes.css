@@ -47,7 +47,7 @@
   margin-top: 15px;
   font-weight: bold;
   color: #333;
-  text-align: center;
+  text-align: center !important;
 }
 
 .box p {
