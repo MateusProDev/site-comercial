@@ -1,158 +1,150 @@
-/* EditFooter.css */
+/* src/components/admin/EditFooter.css */
+
 .edit-footer {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .edit-footer h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-  color: #222;
 }
 
+/* Mensagem de erro */
+.error {
+  color: #d9534f;
+  background: #f8d7da;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* Seção do formulário */
 .form-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 25px;
 }
 
 .form-section h3 {
-  margin-bottom: 0.75rem;
-  font-size: 1.5rem;
-  color: #555;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 0.5rem;
-}
-
-.edit-footer label {
-  display: block;
-  margin-bottom: 0.5rem;
+  font-size: 20px;
   font-weight: 600;
-  font-size: 1rem;
+  color: #444;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
 }
 
-.edit-footer input,
-.edit-footer textarea,
-.edit-footer select {
+.form-section label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.form-section input,
+.form-section textarea,
+.form-section select {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 1rem;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: all 0.3s ease;
 }
 
-.edit-footer input:focus,
-.edit-footer textarea:focus,
-.edit-footer select:focus {
+.form-section textarea {
+  resize: none;
+  height: 100px;
+}
+
+.form-section input:focus,
+.form-section select:focus,
+.form-section textarea:focus {
   border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
   outline: none;
 }
 
+/* Pré-visualização da imagem */
 .footer-logo-preview,
 .social-icon-preview {
-  width: 80px;
+  max-width: 120px;
   height: auto;
-  margin-top: 0.5rem;
-  object-fit: contain;
-  display: block;
-  border-radius: 4px;
+  margin-top: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.edit-footer button {
+/* Estilo das redes sociais */
+.social-edit {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.social-edit img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+/* Botão de envio */
+button[type="submit"] {
   width: 100%;
-  padding: 1rem;
-  background-color: #007bff;
-  color: #fff;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-weight: bold;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.edit-footer button:hover {
-  background-color: #0056b3;
+button[type="submit"]:hover {
+  background: linear-gradient(135deg, #0056b3, #003c80);
 }
 
-.error {
-  color: #d93025;
-  text-align: center;
-  margin-bottom: 1rem;
-  font-size: 1rem;
+button[type="submit"]:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
-/* Responsividade para telas médias */
+/* Responsividade */
 @media (max-width: 768px) {
   .edit-footer {
-    padding: 1.5rem;
-    max-width: 90%;
-  }
-
-  .edit-footer h2 {
-    font-size: 1.8rem;
+    padding: 20px;
   }
 
   .form-section h3 {
-    font-size: 1.3rem;
+    font-size: 18px;
   }
 
-  .edit-footer input,
-  .edit-footer textarea,
-  .edit-footer select {
-    font-size: 0.9rem;
-    padding: 0.65rem;
-  }
-
-  .edit-footer button {
-    font-size: 0.9rem;
-    padding: 0.85rem;
+  .form-section input,
+  .form-section textarea,
+  .form-section select {
+    font-size: 14px;
   }
 
   .footer-logo-preview,
   .social-icon-preview {
-    width: 60px;
-  }
-}
-
-/* Responsividade para telas pequenas */
-@media (max-width: 480px) {
-  .edit-footer {
-    padding: 1rem;
-    max-width: 95%;
+    max-width: 100px;
   }
 
-  .edit-footer h2 {
-    font-size: 1.6rem;
-  }
-
-  .form-section h3 {
-    font-size: 1.2rem;
-  }
-
-  .edit-footer input,
-  .edit-footer textarea,
-  .edit-footer select {
-    font-size: 0.85rem;
-    padding: 0.55rem;
-  }
-
-  .edit-footer button {
-    font-size: 0.85rem;
-    padding: 0.75rem;
-  }
-
-  .footer-logo-preview,
-  .social-icon-preview {
-    width: 50px;
+  button[type="submit"] {
+    font-size: 14px;
   }
 }

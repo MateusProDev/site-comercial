@@ -1,4 +1,3 @@
-// src/components/Admin/AdminDashboard/AdminDashboard.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../../firebase/firebase";
@@ -31,6 +30,10 @@ const AdminDashboard = () => {
     navigate("/admin/edit-whatsapp");
   };
 
+  const goToEditCarousel = () => {
+    navigate("/admin/edit-carousel"); // Nova função para editar o carrossel
+  };
+
   const goToHome = () => {
     navigate("/");
   };
@@ -52,6 +55,7 @@ const AdminDashboard = () => {
         <button onClick={goToEditAbout}>Editar Sobre</button>
         <button onClick={goToEditFooter}>Editar Rodapé</button>
         <button onClick={goToEditWhatsapp}>Editar WhatsApp</button>
+        <button onClick={goToEditCarousel}>Editar Carrossel</button> {/* Novo botão */}
         <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 

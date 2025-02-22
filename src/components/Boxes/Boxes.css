@@ -1,14 +1,23 @@
-/* Estilização principal */
-.boxes {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
-  padding: 40px;
+.boxes-container {
+  padding: 20px;
 }
 
-/* Cada box individual */
+.section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
 .box {
   width: 30%;
   max-width: 250px;
@@ -20,13 +29,11 @@
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-/* Efeito hover */
 .box:hover {
   transform: translateY(-5px);
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* Imagem dentro do box */
 .box img {
   width: 100%;
   height: auto;
@@ -35,7 +42,6 @@
   border-radius: 8px;
 }
 
-/* Título do box */
 .box h3 {
   font-size: 1.5rem;
   margin-top: 15px;
@@ -43,14 +49,12 @@
   color: #333;
 }
 
-/* Texto do box */
 .box p {
   font-size: 1rem;
   color: #666;
   padding: 10px;
 }
 
-/* Responsividade para tablets e celulares */
 @media (max-width: 1024px) {
   .boxes {
     flex-direction: column;
@@ -62,11 +66,9 @@
   }
 }
 
-/* Responsividade para celulares */
 @media (max-width: 600px) {
   .box {
     width: 100%;
     max-width: 400px;
-    margin-left: -20px !important;
   }
 }

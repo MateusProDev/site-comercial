@@ -1,174 +1,339 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../../firebase/firebase";
-import { doc, setDoc, onSnapshot } from "firebase/firestore"; 
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "./EditBoxes.css";
 
 const EditBoxes = () => {
   const navigate = useNavigate();
-  
-  const [box1, setBox1] = useState({ title: "", content: "", imageUrl: "" });
-  const [box2, setBox2] = useState({ title: "", content: "", imageUrl: "" });
-  const [box3, setBox3] = useState({ title: "", content: "", imageUrl: "" });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [sections, setSections] = useState([]); // Lista de seções com boxes
+  const [newSectionTitle, setNewSectionTitle] = useState(""); // Título da nova seção
+  const [newBox, setNewBox] = useState({
+    sectionIndex: null,
+    title: "",
+    content: "",
+    image: null
+  }); // Estado para o novo box
+  const [loading, setLoading] = useState(false); // Estado de carregamento
+  const [error, setError] = useState(""); // Estado de erro
+  const [success, setSuccess] = useState(""); // Estado de sucesso
+  const [editSectionIndex, setEditSectionIndex] = useState(null); // Índice da seção que está sendo editada
+  const [editBoxIndex, setEditBoxIndex] = useState(null); // Índice do box que está sendo editado
 
-  // Função para carregar os dados em tempo real
+  // Carregar as seções e boxes do Firebase
   useEffect(() => {
-    const boxesRef = doc(db, "content", "boxes");
-
-    const unsubscribe = onSnapshot(boxesRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setBox1(data.box1 || { title: "", content: "", imageUrl: "" });
-        setBox2(data.box2 || { title: "", content: "", imageUrl: "" });
-        setBox3(data.box3 || { title: "", content: "", imageUrl: "" });
-      } else {
-        console.log("Boxes não encontrados!");
+    const fetchSections = async () => {
+      try {
+        const boxesRef = doc(db, "content", "boxes");
+        const boxesDoc = await getDoc(boxesRef);
+        if (boxesDoc.exists()) {
+          setSections(boxesDoc.data().sections || []);
+        }
+      } catch (error) {
+        setError("Erro ao carregar dados.");
+        console.error("Erro ao buscar dados:", error);
       }
-    });
-
-    return () => unsubscribe();
+    };
+    fetchSections();
   }, []);
 
-  // Função para upload de imagem para o Cloudinary
-  const handleImageChange = async (e, box) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  // Função para fazer o upload da imagem
+  const handleImageUpload = async (file) => {
+    if (!file) return null;
 
-    setLoading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "qc7tkpck"); // Seu upload preset do Cloudinary
-    formData.append("cloud_name", "doeiv6m4h"); // Seu Cloud Name
+    formData.append("upload_preset", "qc7tkpck");
+    formData.append("cloud_name", "doeiv6m4h");
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload`,
+        "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
         formData
       );
-      const imageUrl = response.data.secure_url;
-
-      if (box === 1) setBox1({ ...box1, imageUrl });
-      if (box === 2) setBox2({ ...box2, imageUrl });
-      if (box === 3) setBox3({ ...box3, imageUrl });
-
-      alert("Imagem carregada com sucesso!");
+      return response.data.secure_url;
     } catch (error) {
-      console.error("Erro ao carregar imagem:", error);
-      alert("Erro ao carregar imagem!");
+      setError("Falha no upload da imagem.");
+      return null;
+    }
+  };
+
+  // Função para adicionar uma nova seção
+  const handleAddSection = () => {
+    if (!newSectionTitle) {
+      setError("Digite um título para a seção!");
+      return;
+    }
+    setSections((prev) => [...prev, { title: newSectionTitle, boxes: [] }]);
+    setNewSectionTitle("");
+  };
+
+  // Função para adicionar um box na seção
+  const handleAddBox = async () => {
+    const { title, content, image, sectionIndex } = newBox;
+
+    if (!title || !content || !image) {
+      setError("Preencha todos os campos do box!");
+      return;
+    }
+
+    setLoading(true);
+
+    // Fazer o upload da imagem e obter a URL
+    const imageUrl = await handleImageUpload(image);
+
+    if (imageUrl) {
+      // Atualizar as seções com o novo box
+      const updatedSections = [...sections];
+      updatedSections[sectionIndex].boxes.push({
+        title,
+        content,
+        imageUrl
+      });
+
+      // Atualizar o estado das seções no Firebase
+      try {
+        await setDoc(doc(db, "content", "boxes"), { sections: updatedSections });
+        setSections(updatedSections); // Atualiza o estado local
+        setNewBox({ sectionIndex: null, title: "", content: "", image: null }); // Limpa o formulário
+        setSuccess("Box adicionado com sucesso!");
+      } catch (error) {
+        setError("Erro ao salvar o box.");
+      }
+    }
+
+    setLoading(false);
+  };
+
+  // Função para excluir um box
+  const handleDeleteBox = (sectionIndex, boxIndex) => {
+    const updatedSections = [...sections];
+    updatedSections[sectionIndex].boxes.splice(boxIndex, 1);
+
+    // Atualizar as seções no Firebase
+    setDoc(doc(db, "content", "boxes"), { sections: updatedSections })
+      .then(() => {
+        setSections(updatedSections);
+      })
+      .catch((error) => {
+        setError("Erro ao excluir o box.");
+      });
+  };
+
+  // Função para excluir uma seção
+  const handleDeleteSection = (sectionIndex) => {
+    const updatedSections = sections.filter((_, index) => index !== sectionIndex);
+
+    // Atualizar as seções no Firebase
+    setDoc(doc(db, "content", "boxes"), { sections: updatedSections })
+      .then(() => {
+        setSections(updatedSections);
+        setSuccess("Seção excluída com sucesso!");
+      })
+      .catch((error) => {
+        setError("Erro ao excluir a seção.");
+      });
+  };
+
+  // Função para salvar as alterações em uma seção
+  const handleSaveSection = (sectionIndex) => {
+    const updatedSections = [...sections];
+    updatedSections[sectionIndex].title = newSectionTitle;
+    setSections(updatedSections);
+    setEditSectionIndex(null);
+    setSuccess("Seção atualizada!");
+  };
+
+  // Função para salvar alterações em um box
+  const handleSaveBox = async (sectionIndex, boxIndex) => {
+    const updatedSections = [...sections];
+    const box = updatedSections[sectionIndex].boxes[boxIndex];
+
+    // Verifica se a imagem foi alterada
+    let imageUrl = box.imageUrl;
+    if (newBox.image) {
+      imageUrl = await handleImageUpload(newBox.image);
+    }
+
+    updatedSections[sectionIndex].boxes[boxIndex] = {
+      ...box,
+      title: newBox.title,
+      content: newBox.content,
+      imageUrl: imageUrl || box.imageUrl, // Se imagem nova foi carregada, usa a nova imagem
+    };
+
+    setSections(updatedSections);
+    setEditBoxIndex(null);
+    setSuccess("Box atualizado com sucesso!");
+  };
+
+  // Função para editar uma seção
+  const handleEditSection = (sectionIndex) => {
+    setNewSectionTitle(sections[sectionIndex].title);
+    setEditSectionIndex(sectionIndex);
+  };
+
+  // Função para editar um box
+  const handleEditBox = (sectionIndex, boxIndex) => {
+    setNewBox({
+      title: sections[sectionIndex].boxes[boxIndex].title,
+      content: sections[sectionIndex].boxes[boxIndex].content,
+      image: sections[sectionIndex].boxes[boxIndex].imageUrl,
+      sectionIndex
+    });
+    setEditBoxIndex(boxIndex);
+  };
+
+  // Função para salvar todas as alterações
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await setDoc(doc(db, "content", "boxes"), { sections });
+      setSuccess("Alterações salvas!");
+      setTimeout(() => navigate("/admin/dashboard"), 2000);
+    } catch (error) {
+      setError("Erro ao salvar as alterações.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Função para salvar os dados no Firestore
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const boxesRef = doc(db, "content", "boxes");
-      await setDoc(boxesRef, {
-        box1,
-        box2,
-        box3
-      });
-      alert("Boxes atualizados com sucesso!");
-      navigate("/admin/dashboard");
-    } catch (error) {
-      console.error("Erro ao salvar os boxes:", error);
-      setError("Erro ao salvar as alterações.");
-    }
-  };
-
   return (
     <div className="edit-boxes">
-      <h2>Editar Boxes</h2>
+      <h2>Editar Seções</h2>
       {error && <p className="error">{error}</p>}
+      {success && <p className="success">{success}</p>}
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Imagem Box 1</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, 1)}
-          />
-          {box1.imageUrl && <img src={box1.imageUrl} alt="Imagem Box 1" className="box-image-preview" />}
-          
-          <label>Título Box 1</label>
-          <input
-            type="text"
-            value={box1.title}
-            onChange={(e) => setBox1({ ...box1, title: e.target.value })}
-            required
-          />
-          
-          <label>Conteúdo Box 1</label>
-          <textarea
-            value={box1.content}
-            onChange={(e) => setBox1({ ...box1, content: e.target.value })}
-            required
-            rows="5"
-          />
-        </div>
-
-        <div>
-          <label>Imagem Box 2</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, 2)}
-          />
-          {box2.imageUrl && <img src={box2.imageUrl} alt="Imagem Box 2" className="box-image-preview" />}
-          
-          <label>Título Box 2</label>
-          <input
-            type="text"
-            value={box2.title}
-            onChange={(e) => setBox2({ ...box2, title: e.target.value })}
-            required
-          />
-          
-          <label>Conteúdo Box 2</label>
-          <textarea
-            value={box2.content}
-            onChange={(e) => setBox2({ ...box2, content: e.target.value })}
-            required
-            rows="5"
-          />
-        </div>
-
-        <div>
-          <label>Imagem Box 3</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, 3)}
-          />
-          {box3.imageUrl && <img src={box3.imageUrl} alt="Imagem Box 3" className="box-image-preview" />}
-          
-          <label>Título Box 3</label>
-          <input
-            type="text"
-            value={box3.title}
-            onChange={(e) => setBox3({ ...box3, title: e.target.value })}
-            required
-          />
-          
-          <label>Conteúdo Box 3</label>
-          <textarea
-            value={box3.content}
-            onChange={(e) => setBox3({ ...box3, content: e.target.value })}
-            required
-            rows="5"
-          />
-        </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Salvando..." : "Salvar"}
+      {/* Adicionar Nova Seção */}
+      <div className="add-section-form">
+        <input
+          type="text"
+          placeholder="Nome da Seção"
+          value={newSectionTitle}
+          onChange={(e) => setNewSectionTitle(e.target.value)}
+        />
+        <button onClick={handleAddSection} disabled={loading}>
+          Nova Seção
         </button>
-      </form>
+      </div>
+
+      {/* Lista de Seções */}
+      <div className="sections-list">
+        {sections.map((section, sectionIndex) => (
+          <div key={sectionIndex} className="section">
+            {editSectionIndex === sectionIndex ? (
+              <div>
+                <input
+                  type="text"
+                  value={newSectionTitle}
+                  onChange={(e) => setNewSectionTitle(e.target.value)}
+                />
+                <button onClick={() => handleSaveSection(sectionIndex)} disabled={loading}>
+                  Salvar
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3>{section.title}</h3>
+                <button onClick={() => handleEditSection(sectionIndex)} disabled={loading}>
+                  Editar Seção
+                </button>
+              </>
+            )}
+
+            {/* Botão para excluir a seção */}
+            <button
+              onClick={() => handleDeleteSection(sectionIndex)}
+              className="delete-section-btn"
+              disabled={loading}
+            >
+              Excluir Seção
+            </button>
+
+            {/* Formulário do Box */}
+            {newBox.sectionIndex === sectionIndex && (
+              <div className="add-box-form">
+                <input
+                  type="text"
+                  placeholder="Título"
+                  value={newBox.title}
+                  onChange={(e) => setNewBox({ ...newBox, title: e.target.value })}
+                />
+                <textarea
+                  placeholder="Descrição"
+                  value={newBox.content}
+                  onChange={(e) => setNewBox({ ...newBox, content: e.target.value })}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setNewBox({ ...newBox, image: e.target.files[0] })}
+                />
+                <button onClick={handleAddBox} disabled={loading}>
+                  {loading ? "Adicionando..." : "Adicionar Box"}
+                </button>
+              </div>
+            )}
+
+            {/* Botão para abrir o formulário */}
+            <button
+              onClick={() => setNewBox({ ...newBox, sectionIndex })}
+              disabled={loading}
+            >
+              Adicionar Box
+            </button>
+
+            {/* Boxes da Seção */}
+            <div className="boxes">
+              {section.boxes.map((box, boxIndex) => (
+                <div key={boxIndex} className="box">
+                  {editBoxIndex === boxIndex ? (
+                    <div>
+                      <input
+                        type="text"
+                        value={newBox.title}
+                        onChange={(e) => setNewBox({ ...newBox, title: e.target.value })}
+                      />
+                      <textarea
+                        value={newBox.content}
+                        onChange={(e) => setNewBox({ ...newBox, content: e.target.value })}
+                      />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setNewBox({ ...newBox, image: e.target.files[0] })}
+                      />
+                      <button onClick={() => handleSaveBox(sectionIndex, boxIndex)} disabled={loading}>
+                        Salvar Box
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <img src={box.imageUrl} alt={box.title} />
+                      <h4>{box.title}</h4>
+                      <p>{box.content}</p>
+                      <button onClick={() => handleEditBox(sectionIndex, boxIndex)} disabled={loading}>
+                        Editar Box
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBox(sectionIndex, boxIndex)}
+                        disabled={loading}
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={handleSave} disabled={loading}>
+        {loading ? "Salvando..." : "Salvar Tudo"}
+      </button>
     </div>
   );
 };

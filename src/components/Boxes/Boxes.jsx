@@ -1,27 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../../firebase/firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
-import './Boxes.css';
-
-// Imagem padrão para os boxes
-const defaultImage = "https://via.placeholder.com/400x300?text=Imagem+Padr%C3%A3o";
+import React, { useState, useEffect } from "react";
+import { db } from "../../firebase/firebase";
+import { doc, onSnapshot } from "firebase/firestore";
+import "./Boxes.css";
 
 const Boxes = () => {
-  const [box1, setBox1] = useState({ title: "", content: "", imageUrl: "" });
-  const [box2, setBox2] = useState({ title: "", content: "", imageUrl: "" });
-  const [box3, setBox3] = useState({ title: "", content: "", imageUrl: "" });
+  const [sections, setSections] = useState([]); // Lista de seções com boxes
 
+  // Busca as seções e boxes ao carregar o componente
   useEffect(() => {
     const boxesRef = doc(db, "content", "boxes");
 
     const unsubscribe = onSnapshot(boxesRef, (docSnap) => {
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        setBox1(data.box1 || { title: "", content: "", imageUrl: "" });
-        setBox2(data.box2 || { title: "", content: "", imageUrl: "" });
-        setBox3(data.box3 || { title: "", content: "", imageUrl: "" });
+        setSections(docSnap.data().sections || []); // Atualiza o estado com as seções
       } else {
-        console.log("Boxes não encontrados!");
+        console.log("Seções não encontradas!");
       }
     });
 
@@ -29,28 +22,22 @@ const Boxes = () => {
   }, []);
 
   return (
-    <section className="boxes">
-      {/* Box 1 */}
-      <div className="box">
-        <img src={box1.imageUrl || defaultImage} alt={box1.title || "Imagem padrão"} />
-        <h3>{box1.title || 'Produto 1'}</h3>
-        <p>{box1.content || 'Descrição do produto'}</p>
-      </div>
-
-      {/* Box 2 */}
-      <div className="box">
-        <img src={box2.imageUrl || defaultImage} alt={box2.title || "Imagem padrão"} />
-        <h3>{box2.title || 'Produto 2'}</h3>
-        <p>{box2.content || 'Descrição do produto'}</p>
-      </div>
-
-      {/* Box 3 */}
-      <div className="box">
-        <img src={box3.imageUrl || defaultImage} alt={box3.title || "Imagem padrão"} />
-        <h3>{box3.title || 'Produto 3'}</h3>
-        <p>{box3.content || 'Descrição do produto'}</p>
-      </div>
-    </section>
+    <div className="boxes-container">
+      {sections.map((section, sectionIndex) => (
+        <div key={sectionIndex} className="section">
+          <h2 className="section-title">{section.title}</h2>
+          <div className="boxes">
+            {section.boxes.map((box, boxIndex) => (
+              <div key={boxIndex} className="box">
+                <img src={box.imageUrl} alt={box.title} />
+                <h3>{box.title}</h3>
+                <p>{box.content}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };
 
