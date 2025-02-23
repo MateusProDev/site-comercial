@@ -1,7 +1,7 @@
 /* Estilos gerais */
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #d2d2d2;
+  background-color: transparent;
   margin: 0;
   padding: 0;
 }
@@ -91,11 +91,15 @@ body {
 }
 
 .section {
-  background-color: #fff;
+  background-color: #e6e6e6;
   border-radius: 10px;
   margin-bottom: 30px;
   padding: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.section-flex{
+  display: flex;
+  justify-content: center;
 }
 
 .section h3 {
@@ -187,7 +191,7 @@ body {
 .boxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px 0;
+  gap: 20px;
 }
 
 .box {
@@ -198,6 +202,7 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   position: relative;
   text-align: center !important;
+  gap: 20px;
 }
 
 /* Boxes */

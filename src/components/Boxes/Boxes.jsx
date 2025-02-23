@@ -26,6 +26,7 @@ const Boxes = () => {
       {sections.map((section, sectionIndex) => (
         <div key={sectionIndex} className="section">
           <h2 className="section-title">{section.title}</h2>
+          <div className="section-flex">
           <div className="boxes">
             {section.boxes.map((box, boxIndex) => (
               <div key={boxIndex} className="box">
@@ -34,6 +35,7 @@ const Boxes = () => {
                 <p>{box.content}</p>
               </div>
             ))}
+          </div>
           </div>
         </div>
       ))}
