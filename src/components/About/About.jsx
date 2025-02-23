@@ -4,7 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import "./About.css";
 
 const About = () => {
-  const [aboutText, setAboutText] = useState(null);
+  const [data, setData] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,28 +12,31 @@ const About = () => {
       try {
         const aboutRef = doc(db, "content", "about");
         const aboutDoc = await getDoc(aboutRef);
-
         if (aboutDoc.exists()) {
-          setAboutText(aboutDoc.data().text);
+          const docData = aboutDoc.data();
+          setData({
+            title: docData.title || "Sobre Nós",
+            description: docData.description || ""
+          });
         } else {
-          console.log("Documento 'about' não encontrado!");
-          setAboutText("Conteúdo não disponível.");
+          setData({ title: "Sobre Nós", description: "Conteúdo não disponível." });
         }
       } catch (error) {
-        console.error("Erro ao buscar dados do Firestore:", error);
-        setAboutText("Erro ao carregar informações.");
+        console.error("Erro ao buscar dados:", error);
+        setData({ title: "Sobre Nós", description: "Erro ao carregar informações." });
       } finally {
         setLoading(false);
       }
     };
-
     fetchAboutData();
   }, []);
 
+  if (loading) return <p>Carregando...</p>;
+
   return (
     <section className="about">
-      <h2>Sobre Nós</h2>
-      {loading ? <p>Carregando...</p> : <p>{aboutText}</p>}
+      <h2>{data.title}</h2>
+      <p className="description">{data.description}</p>
     </section>
   );
 };

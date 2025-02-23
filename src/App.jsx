@@ -12,6 +12,7 @@ import EditFooter from "./components/Admin/EditFooter/EditFooter";
 import EditHeader from "./components/Admin/EditHeader/EditHeader";
 import AdminWhatsAppConfig from "./components/Admin/AdminWhatsAppConfig/AdminWhatsAppConfig";
 import EditCarousel from "./components/Admin/EditCarousel/EditCarousel";
+import EditHours from "./components/Admin/EditHours/EditHours";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/admin/edit-footer" element={<EditFooter />} />
         <Route path="/admin/edit-whatsapp" element={<AdminWhatsAppConfig />} />
         <Route path="/admin/edit-carousel" element={<EditCarousel />} />
+        <Route path="/admin/edit-hours" element={<EditHours />} />
         <Route path="/" element={<Home />} />
       </Routes>
     </Router>

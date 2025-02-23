@@ -1,7 +1,7 @@
-// src/components/Footer/Footer.js
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import OperatingHours from "./OperatingHours"; // Importando o componente de horários
 import "./Footer.css";
 
 const Footer = () => {
@@ -13,10 +13,7 @@ const Footer = () => {
         const footerRef = doc(db, "content", "footer");
         const footerDoc = await getDoc(footerRef);
         if (footerDoc.exists()) {
-          console.log("Dados do rodapé:", footerDoc.data());
           setFooterData(footerDoc.data());
-        } else {
-          console.log("Rodapé não encontrado!");
         }
       } catch (error) {
         console.error("Erro ao buscar rodapé:", error);
@@ -50,24 +47,11 @@ const Footer = () => {
           {footerData.social &&
             Object.keys(footerData.social).map((key) => {
               const network = footerData.social[key];
-              if (network.logo && network.link) {
-                return (
-                  <a
-                    key={key}
-                    href={network.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <img
-                      src={network.logo}
-                      alt={network.title || key}
-                      className="social-icon"
-                    />
-                  </a>
-                );
-              } else {
-                return null;
-              }
+              return network.logo && network.link ? (
+                <a key={key} href={network.link} target="_blank" rel="noopener noreferrer">
+                  <img src={network.logo} alt={network.title || key} className="social-icon" />
+                </a>
+              ) : null;
             })}
         </div>
 
@@ -84,7 +68,10 @@ const Footer = () => {
             })}
         </div>
 
-        {/* Mapa (abaixo do menu) */}
+        {/* Horários de Funcionamento (acima do mapa) */}
+        <OperatingHours />
+
+        {/* Mapa */}
         {footerData.contact?.address && (
           <div className="footer-map">
             <iframe
@@ -105,15 +92,9 @@ const Footer = () => {
         <div className="footer-contact">
           {footerData.contact && (
             <>
-              {footerData.contact.phone && (
-                <p>Telefone: {footerData.contact.phone}</p>
-              )}
-              {footerData.contact.email && (
-                <p>Email: {footerData.contact.email}</p>
-              )}
-              {footerData.contact.address && (
-                <p>Endereço: {footerData.contact.address}</p>
-              )}
+              {footerData.contact.phone && <p>Telefone: {footerData.contact.phone}</p>}
+              {footerData.contact.email && <p>Email: {footerData.contact.email}</p>}
+              {footerData.contact.address && <p>Endereço: {footerData.contact.address}</p>}
             </>
           )}
         </div>
@@ -122,8 +103,7 @@ const Footer = () => {
         <div className="footer-bottom">
           <p>
             &copy; {footerData.year || new Date().getFullYear()}{" "}
-            {footerData.companyName || "Sua Empresa"}. Todos os direitos
-            reservados.
+            {footerData.companyName || "Sua Empresa"}. Todos os direitos reservados.
           </p>
         </div>
       </div>

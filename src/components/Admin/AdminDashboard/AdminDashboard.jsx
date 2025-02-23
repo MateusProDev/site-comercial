@@ -25,6 +25,9 @@ const AdminDashboard = () => {
   const goToEditFooter = () => {
     navigate("/admin/edit-footer");
   };
+  const goToEditHours = () => {
+    navigate("/admin/edit-hours");
+  };
 
   const goToEditWhatsapp = () => {
     navigate("/admin/edit-whatsapp");
@@ -54,8 +57,9 @@ const AdminDashboard = () => {
         <button onClick={goToEditBoxes}>Editar Boxes</button>
         <button onClick={goToEditAbout}>Editar Sobre</button>
         <button onClick={goToEditFooter}>Editar Rodapé</button>
+        <button onClick={goToEditHours}>Editar Horários</button>
         <button onClick={goToEditWhatsapp}>Editar WhatsApp</button>
-        <button onClick={goToEditCarousel}>Editar Carrossel</button> {/* Novo botão */}
+        <button onClick={goToEditCarousel}>Editar Carrossel</button>
         <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 

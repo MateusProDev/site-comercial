@@ -1,15 +1,16 @@
-// src/pages/AboutPage/AboutPage.js
-import React from 'react';
-import Header from '../../components/Header/Header';
-import About from '../../components/About/About';
-import Footer from '../../components/Footer/Footer';
-import './AboutPage.css';
+import React from "react";
+import AboutCarousel from "../../components/About/AboutCarousel";
+import Header from "../../components/Header/Header";
+import Footer from "../../components/Footer/Footer";
+import "./AboutPage.css";
 
 const AboutPage = () => {
   return (
-    <div>
+    <div className="about-page">
       <Header />
-      <About />
+      {/* Seu conteúdo existente */}
+
+      <AboutCarousel />
       <Footer />
     </div>
   );
