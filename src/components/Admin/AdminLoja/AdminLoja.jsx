@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { db, auth } from "../../../firebase/firebaseConfig";
-import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Vamos usar o Axios para fazer o upload para o Cloudinary
+import axios from "axios";
+import ExpandableText from "../../../components/ExpandableText/ExpandableText"; // Certifique-se de que o caminho está correto
 import "./AdminLoja.css";
 
 const AdminLoja = () => {
@@ -11,10 +19,10 @@ const AdminLoja = () => {
   const [preco, setPreco] = useState("");
   const [categoria, setCategoria] = useState("Destaque");
   const [imagem, setImagem] = useState(null);
-  const [descricao, setDescricao] = useState(""); // Adicionado campo descrição
+  const [descricao, setDescricao] = useState("");
   const [editandoProduto, setEditandoProduto] = useState(null);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // Feedback de sucesso
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,18 +30,20 @@ const AdminLoja = () => {
       navigate("/loja/login");
       setError("Usuário não autenticado. Redirecionando para login.");
     } else {
-      const unsubscribe = onSnapshot(collection(db, "produtos"), (querySnapshot) => {
-        const produtosList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setProdutos(produtosList);
-        console.log("Produtos carregados:", produtosList);
-      }, (error) => {
-        console.error("Erro ao escutar produtos:", error.message);
-        setError("Erro ao carregar produtos: " + error.message);
-      });
-
+      const unsubscribe = onSnapshot(
+        collection(db, "produtos"),
+        (querySnapshot) => {
+          const produtosList = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setProdutos(produtosList);
+        },
+        (error) => {
+          console.error("Erro ao escutar produtos:", error.message);
+          setError("Erro ao carregar produtos: " + error.message);
+        }
+      );
       return () => unsubscribe();
     }
   }, [navigate]);
@@ -41,16 +51,19 @@ const AdminLoja = () => {
   const uploadImagemCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "qc7tkpck"); // Coloque seu upload_preset do Cloudinary aqui
-    formData.append("cloud_name", "doeiv6m4h"); // Coloque seu cloud_name aqui
+    formData.append("upload_preset", "qc7tkpck");
+    formData.append("cloud_name", "doeiv6m4h");
 
     try {
-      const response = await axios.post("https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload", formData);
-      const url = response.data.secure_url; // URL da imagem no Cloudinary
-      console.log("Imagem enviada para o Cloudinary:", url);
-      return url;
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
+        formData
+      );
+      return response.data.secure_url;
     } catch (error) {
-      throw new Error("Erro ao fazer upload da imagem no Cloudinary: " + error.message);
+      throw new Error(
+        "Erro ao fazer upload da imagem no Cloudinary: " + error.message
+      );
     }
   };
 
@@ -74,7 +87,7 @@ const AdminLoja = () => {
       preco: parseFloat(preco),
       categoria,
       imagem: imagemUrl,
-      descricao, // Adicionando a descrição aqui
+      descricao,
     };
 
     try {
@@ -91,7 +104,7 @@ const AdminLoja = () => {
       setPreco("");
       setCategoria("Destaque");
       setImagem(null);
-      setDescricao(""); // Limpar campo de descrição após enviar
+      setDescricao("");
     } catch (error) {
       console.error("Erro ao salvar produto:", error.message);
       setError("Erro ao salvar produto: " + error.message);
@@ -103,7 +116,7 @@ const AdminLoja = () => {
     setNome(produto.nome);
     setPreco(produto.preco);
     setCategoria(produto.categoria);
-    setDescricao(produto.descricao); // Carregar a descrição ao editar
+    setDescricao(produto.descricao);
   };
 
   const handleExcluir = async (id) => {
@@ -170,16 +183,22 @@ const AdminLoja = () => {
         ) : (
           produtos.map((produto) => (
             <div key={produto.id} className="produto-item">
-              <img src={produto.imagem} alt={produto.nome} className="produto-imagem" />
+              <img
+                src={produto.imagem}
+                alt={produto.nome}
+                className="produto-imagem"
+              />
               <div className="produto-info">
                 <h3>{produto.nome}</h3>
                 <p>R$ {produto.preco.toFixed(2)}</p>
                 <p>Categoria: {produto.categoria}</p>
-                <p>{produto.descricao}</p> {/* Exibe a descrição */}
+                <ExpandableText text={produto.descricao} maxLength={100} />
               </div>
               <div className="produto-actions">
                 <button onClick={() => handleEditar(produto)}>Editar</button>
-                <button onClick={() => handleExcluir(produto.id)}>Excluir</button>
+                <button onClick={() => handleExcluir(produto.id)}>
+                  Excluir
+                </button>
               </div>
             </div>
           ))

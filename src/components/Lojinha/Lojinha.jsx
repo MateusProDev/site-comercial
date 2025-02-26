@@ -82,6 +82,7 @@ const Lojinha = () => {
                     <img src={product.imagem} alt={product.nome} className="productImageDestaque" />
                     <p className="productName">{product.nome}</p>
                     <p>R${product.preco.toFixed(2)}</p>
+                    {product.descricao && <p className="productDescription">{product.descricao}</p>} {/* Verifica se existe a descrição */}
                     <button onClick={() => addToCart(product)}>Adicionar ao Carrinho</button>
                   </div>
                 ))}
@@ -96,7 +97,11 @@ const Lojinha = () => {
                   <div key={product.id} className="productItem">
                     <img src={product.imagem} alt={product.nome} className="productImage" />
                     <p>{product.nome} - R${product.preco.toFixed(2)}</p>
-                    <p>{product.descricao}</p>
+                    {product.descricao ? (
+                      <p>{product.descricao}</p> 
+                    ) : (
+                      <p className="noDescription">Descrição não disponível</p> 
+                    )}
                     <button onClick={() => addToCart(product)}>Adicionar ao Carrinho</button>
                   </div>
                 ))

@@ -35,7 +35,7 @@
   background-color: red;
   color: white;
   border-radius: 50%;
-  padding: 5px 3px;
+  padding: 5px;
   font-size: 14px;
   font-weight: bold;
 }
@@ -58,7 +58,7 @@
 .mainContent h1 {
   font-size: 28px;
   color: #333;
-  text-align: center;
+  text-align: left;
   margin-bottom: 20px;
 }
 
@@ -136,23 +136,24 @@
 .productItemDestaque {
   flex-shrink: 0;
   width: 250px;
+  height: auto;
   border: 1px solid #ddd;
-  padding: 10px;
   border-radius: 8px;
   background-color: white;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
   transition: box-shadow 0.3s ease-in-out;
 }
 
 .productItemDestaque:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); */
 }
 
 .productImageDestaque {
   max-width: 100%;
-  height: 100px;
-  border-radius: 8px;
+  width: 100%;
+  height: 150px;
+  border-radius: 8px 8px 0 0;
   object-fit: cover;
   transition: transform 0.3s ease-in-out;
 }
@@ -165,6 +166,10 @@
   font-size: 16px;
   font-weight: bold;
   margin: 5px 0;
+  text-align: left;
+}
+.productName p {
+  text-align: left;
 }
 
 /* Lista de Produtos (categorias normais) */
@@ -208,6 +213,8 @@
   font-size: 14px;
   color: #666;
   margin: 5px 0;
+  padding: 5px;
+  text-align: left;
 }
 
 .productItem button,
@@ -348,10 +355,12 @@
 
   .productItemDestaque {
     width: 200px;
+    height: auto;
+  text-align: left;
   }
 
   .productImageDestaque {
-    height: 80px;
+    height: 100px;
   }
 
   .productList {
@@ -393,10 +402,13 @@
 
   .productItemDestaque {
     width: 150px;
+    height: auto;
+  text-align: left;
+
   }
 
   .productImageDestaque {
-    height: 70px;
+    height: 100px;
   }
 
   .productName {
@@ -436,4 +448,142 @@
   .carinho_compras {
     width: 70%;
   }
+}
+/* Ajuste para a descrição do produto */
+.productItem p,
+.productItemDestaque p {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0;
+  text-align: left;
+  word-wrap: break-word; /* Garante que o texto quebre a linha quando necessário */
+  white-space: normal; /* Permite que o texto quebre linhas normalmente */
+  overflow-wrap: break-word; /* Para navegadores que não suportam word-wrap */
+}
+/* Container principal */
+.admin-loja-container {
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+/* Estilo do formulário */
+.admin-form {
+  margin-bottom: 40px;
+}
+
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.admin-form button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.admin-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Lista de produtos */
+.produtos-list {
+  margin-top: 20px;
+}
+
+.produto-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: white;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.produto-imagem {
+  max-width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.produto-info {
+  margin-bottom: 10px;
+}
+
+.produto-info h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.produto-info p {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0;
+  word-break: break-word;
+}
+
+/* Descrição com limite de 2 linhas */
+.descricao {
+  max-height: 40px; /* Aproximadamente 2 linhas */
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.descricao.expandido {
+  max-height: 200px; /* Altura quando expandido */
+}
+
+/* Botão "Ver mais/menos" */
+.ver-mais {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.ver-mais:hover {
+  color: #0056b3;
+}
+
+/* Ações do produto */
+.produto-actions button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.produto-actions button:hover {
+  background-color: #0056b3;
+}
+
+/* Mensagens */
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.success {
+  color: green;
+  font-weight: bold;
 }
