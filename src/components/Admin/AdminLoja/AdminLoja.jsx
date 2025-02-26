@@ -1,208 +1,55 @@
-import React, { useState, useEffect } from "react";
-import { db, auth } from "../../../firebase/firebaseConfig";
-import {
-  collection,
-  addDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
-  onSnapshot,
-} from "firebase/firestore";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import ExpandableText from "../../../components/ExpandableText/ExpandableText"; // Certifique-se de que o caminho está correto
+import { auth } from "../../../firebase/firebaseConfig";
 import "./AdminLoja.css";
 
 const AdminLoja = () => {
-  const [produtos, setProdutos] = useState([]);
-  const [nome, setNome] = useState("");
-  const [preco, setPreco] = useState("");
-  const [categoria, setCategoria] = useState("Destaque");
-  const [imagem, setImagem] = useState(null);
-  const [descricao, setDescricao] = useState("");
-  const [editandoProduto, setEditandoProduto] = useState(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!auth.currentUser) {
-      navigate("/loja/login");
-      setError("Usuário não autenticado. Redirecionando para login.");
-    } else {
-      const unsubscribe = onSnapshot(
-        collection(db, "produtos"),
-        (querySnapshot) => {
-          const produtosList = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setProdutos(produtosList);
-        },
-        (error) => {
-          console.error("Erro ao escutar produtos:", error.message);
-          setError("Erro ao carregar produtos: " + error.message);
-        }
-      );
-      return () => unsubscribe();
-    }
-  }, [navigate]);
-
-  const uploadImagemCloudinary = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "qc7tkpck");
-    formData.append("cloud_name", "doeiv6m4h");
-
-    try {
-      const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/doeiv6m4h/image/upload",
-        formData
-      );
-      return response.data.secure_url;
-    } catch (error) {
-      throw new Error(
-        "Erro ao fazer upload da imagem no Cloudinary: " + error.message
-      );
-    }
+  const goToEditLojinhaHeader = () => {
+    navigate("/loja/admin/edit-lojinhaHeader");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    let imagemUrl = editandoProduto?.imagem || "";
-    if (imagem) {
-      try {
-        imagemUrl = await uploadImagemCloudinary(imagem);
-      } catch (error) {
-        setError(error.message);
-        return;
-      }
-    }
-
-    const produtoData = {
-      nome,
-      preco: parseFloat(preco),
-      categoria,
-      imagem: imagemUrl,
-      descricao,
-    };
-
-    try {
-      if (editandoProduto) {
-        await updateDoc(doc(db, "produtos", editandoProduto.id), produtoData);
-        setSuccess("Produto editado com sucesso!");
-        setEditandoProduto(null);
-      } else {
-        const docRef = await addDoc(collection(db, "produtos"), produtoData);
-        setSuccess(`Produto adicionado com ID: ${docRef.id}`);
-      }
-
-      setNome("");
-      setPreco("");
-      setCategoria("Destaque");
-      setImagem(null);
-      setDescricao("");
-    } catch (error) {
-      console.error("Erro ao salvar produto:", error.message);
-      setError("Erro ao salvar produto: " + error.message);
-    }
+  const goToEditBanner = () => {
+    navigate("/loja/admin/edit-banner");
   };
 
-  const handleEditar = (produto) => {
-    setEditandoProduto(produto);
-    setNome(produto.nome);
-    setPreco(produto.preco);
-    setCategoria(produto.categoria);
-    setDescricao(produto.descricao);
+  const goToEditDestaques = () => {
+    navigate("/loja/admin/edit-destaques");
   };
 
-  const handleExcluir = async (id) => {
-    try {
-      await deleteDoc(doc(db, "produtos", id));
-      setSuccess("Produto excluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir produto:", error.message);
-      setError("Erro ao excluir produto: " + error.message);
-    }
+  const goToEditProdutos = () => {
+    navigate("/loja/admin/edit-produtos");
+  };
+
+  const goToEditCategorias = () => {
+    navigate("/loja/admin/edit-categorias");
+  };
+
+  const goToHome = () => {
+    navigate("/");
+  };
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    navigate("/loja/login");
   };
 
   return (
-    <div className="admin-loja-container">
-      <h1>Painel de Administração da Loja</h1>
-      {error && <p className="error">{error}</p>}
-      {success && <p className="success">{success}</p>}
-      <form onSubmit={handleSubmit} className="admin-form">
-        <h2>{editandoProduto ? "Editar Produto" : "Adicionar Produto"}</h2>
-        <input
-          type="text"
-          placeholder="Nome do Produto"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          required
-        />
-        <input
-          type="number"
-          placeholder="Preço"
-          value={preco}
-          onChange={(e) => setPreco(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Descrição do Produto"
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-          required
-        />
-        <select
-          value={categoria}
-          onChange={(e) => setCategoria(e.target.value)}
-          required
-        >
-          <option value="Destaque">Destaque</option>
-          <option value="Eletrônicos">Eletrônicos</option>
-          <option value="Moda">Moda</option>
-          <option value="Casa">Casa</option>
-        </select>
-        <input
-          type="file"
-          onChange={(e) => setImagem(e.target.files[0])}
-          accept="image/*"
-        />
-        <button type="submit">
-          {editandoProduto ? "Salvar Edição" : "Adicionar Produto"}
-        </button>
-      </form>
+    <div className="admin-loja-dashboard">
+      <h2>Painel da Loja</h2>
+      
+      <div className="admin-loja-actions">
+        <button onClick={goToEditLojinhaHeader}>Editar Cabeçalho</button>
+        <button onClick={goToEditBanner}>Editar Banner</button>
+        <button onClick={goToEditDestaques}>Editar Destaques</button>
+        <button onClick={goToEditProdutos}>Editar Produtos</button>
+        <button onClick={goToEditCategorias}>Editar Categorias</button>
+        <button onClick={goToHome}>Voltar para a Home</button>
+      </div>
 
-      <div className="produtos-list">
-        <h2>Produtos Cadastrados</h2>
-        {produtos.length === 0 ? (
-          <p>Nenhum produto cadastrado.</p>
-        ) : (
-          produtos.map((produto) => (
-            <div key={produto.id} className="produto-item">
-              <img
-                src={produto.imagem}
-                alt={produto.nome}
-                className="produto-imagem"
-              />
-              <div className="produto-info">
-                <h3>{produto.nome}</h3>
-                <p>R$ {produto.preco.toFixed(2)}</p>
-                <p>Categoria: {produto.categoria}</p>
-                <ExpandableText text={produto.descricao} maxLength={100} />
-              </div>
-              <div className="produto-actions">
-                <button onClick={() => handleEditar(produto)}>Editar</button>
-                <button onClick={() => handleExcluir(produto.id)}>
-                  Excluir
-                </button>
-              </div>
-            </div>
-          ))
-        )}
+      <div className="logout-section">
+        <button onClick={handleLogout}>Sair</button>
       </div>
     </div>
   );

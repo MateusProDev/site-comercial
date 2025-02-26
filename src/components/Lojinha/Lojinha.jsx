@@ -4,6 +4,7 @@ import { FiShoppingBag } from "react-icons/fi";
 import { db } from "../../firebase/firebaseConfig";
 import { collection, onSnapshot } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
+import LojinhaHeader from "./LojinhaHeader/LojinhaHeader";
 import "./Lojinha.css";
 
 const Lojinha = () => {
@@ -40,9 +41,7 @@ const Lojinha = () => {
   const handleCartToggle = () => setCartOpen(!isCartOpen);
 
   const handleFinalizePurchase = () => {
-    const message = cart
-      .map((item) => `${item.nome} - R$${item.preco.toFixed(2)}`)
-      .join("\n");
+    const message = cart.map((item) => `${item.nome} - R$${item.preco.toFixed(2)}`).join("\n");
     const totalValue = total.toFixed(2);
     const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\nPreencha as informações:\n\nNome:\nEndereço:\nForma de pagamento:\nPix, Débito, Crédito`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=5585991470709&text=${encodeURIComponent(whatsappMessage)}`;
@@ -55,13 +54,14 @@ const Lojinha = () => {
 
   return (
     <div className="lojinhaContainer">
+      <LojinhaHeader logo="/logo.png" title="Bem-vindo à Lojinha" />
+
       <div className="boxCar" onClick={handleCartToggle}>
         <FiShoppingBag className="cartIcon" />
         {cart.length > 0 && <span className="cartCount">{cart.length}</span>}
       </div>
 
       <main className="mainContent">
-        <h1>Bem-vindo à Lojinha</h1>
         <section className="categories">
           <h2>Categorias</h2>
           <div className="categoryList">
@@ -82,7 +82,7 @@ const Lojinha = () => {
                     <img src={product.imagem} alt={product.nome} className="productImageDestaque" />
                     <p className="productName">{product.nome}</p>
                     <p>R${product.preco.toFixed(2)}</p>
-                    {product.descricao && <p className="productDescription">{product.descricao}</p>} {/* Verifica se existe a descrição */}
+                    {product.descricao && <p className="productDescription">{product.descricao}</p>}
                     <button onClick={() => addToCart(product)}>Adicionar ao Carrinho</button>
                   </div>
                 ))}
@@ -98,9 +98,9 @@ const Lojinha = () => {
                     <img src={product.imagem} alt={product.nome} className="productImage" />
                     <p>{product.nome} - R${product.preco.toFixed(2)}</p>
                     {product.descricao ? (
-                      <p>{product.descricao}</p> 
+                      <p>{product.descricao}</p>
                     ) : (
-                      <p className="noDescription">Descrição não disponível</p> 
+                      <p className="noDescription">Descrição não disponível</p>
                     )}
                     <button onClick={() => addToCart(product)}>Adicionar ao Carrinho</button>
                   </div>

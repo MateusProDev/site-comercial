@@ -44,7 +44,7 @@
 .mainContent {
   flex: 1;
   width: 100vw; /* Largura total da tela */
-  margin: 0;
+  margin: 70px 0 0 0;
   padding: 20px;
   box-sizing: border-box; /* Inclui padding na largura */
   overflow-x: hidden; /* Evita rolagem horizontal */

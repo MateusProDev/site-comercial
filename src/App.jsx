@@ -8,7 +8,6 @@ import EditBanner from "./components/Admin/EditBanner/EditBanner";
 import EditBoxes from "./components/Admin/EditBoxes/EditBoxes";
 import EditAbout from "./components/Admin/EditAbout/EditAbout";
 import EditFooter from "./components/Admin/EditFooter/EditFooter";
-import EditHeader from "./components/Admin/EditHeader/EditHeader";
 import AdminWhatsAppConfig from "./components/Admin/AdminWhatsAppConfig/AdminWhatsAppConfig";
 import EditCarousel from "./components/Admin/EditCarousel/EditCarousel";
 import EditHours from "./components/Admin/EditHours/EditHours";
@@ -16,6 +15,7 @@ import LojaLogin from "./pages/LojaLogin/LojaLogin";
 import Lojinha from "./components/Lojinha/Lojinha";
 import AdminLoja from "./components/Admin/AdminLoja/AdminLoja";
 import { auth } from "./firebase/firebaseConfig";
+import EditLojinhaHeader from "./components/Admin/EditLojinhaHeader/EditLojinhaHeader";
 
 // Componente para proteger rotas administrativas
 const ProtectedRoute = ({ children }) => {
@@ -75,10 +75,10 @@ const App = () => {
           }
         />
         <Route
-          path="/admin/edit-header"
+          path="/loja/admin/edit-lojinhaHeader"  // Adicionando a rota de editar cabeçalho
           element={
             <ProtectedRoute>
-              <EditHeader />
+              <EditLojinhaHeader />  {/* O componente de edição do cabeçalho */}
             </ProtectedRoute>
           }
         />
