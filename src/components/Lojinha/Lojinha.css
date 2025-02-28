@@ -2,6 +2,8 @@
 .lojinhaContainer {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
   background-color: #f4f4f4;
   overflow-x: hidden; /* Evita rolagem horizontal na raiz */
@@ -39,12 +41,16 @@
   font-size: 14px;
   font-weight: bold;
 }
-
+.lojaFlex{
+  width: 70vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 /* Conteúdo principal */
 .mainContent {
   flex: 1;
-  width: 100vw; /* Largura total da tela */
-  margin: 70px 0 0 0;
+  margin: -20px 0 0 0;
   padding: 20px;
   box-sizing: border-box; /* Inclui padding na largura */
   overflow-x: hidden; /* Evita rolagem horizontal */
@@ -53,6 +59,7 @@
 /* Ajuste para altura considerando o footer */
 .lojinhaContainer footer {
   flex-shrink: 0; /* Garante que o footer não encolha */
+  width: 100vw;
 }
 
 .mainContent h1 {
@@ -332,6 +339,9 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
+  .lojaFlex{
+    width: 100vw;
+  }
   .mainContent {
     padding: 15px;
   }
@@ -386,6 +396,9 @@
 }
 
 @media (max-width: 480px) {
+  .lojaFlex{
+    width: 100vw;
+  }
   .mainContent h1 {
     font-size: 24px;
   }

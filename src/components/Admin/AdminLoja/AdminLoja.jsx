@@ -7,23 +7,23 @@ const AdminLoja = () => {
   const navigate = useNavigate();
 
   const goToEditLojinhaHeader = () => {
-    navigate("/loja/admin/edit-lojinhaHeader");
+    navigate("/admin/edit-lojinhaHeader");
   };
 
-  const goToEditBanner = () => {
-    navigate("/loja/admin/edit-banner");
+  const goToBannerAdmin = () => {
+    navigate("/admin/banner-admin");
   };
 
   const goToEditDestaques = () => {
-    navigate("/loja/admin/edit-destaques");
+    navigate("/admin/edit-destaques");
   };
 
   const goToEditProdutos = () => {
-    navigate("/loja/admin/edit-produtos");
+    navigate("/admin/edit-produtos");
   };
 
   const goToEditCategorias = () => {
-    navigate("/loja/admin/edit-categorias");
+    navigate("/admin/edit-categorias");
   };
 
   const goToHome = () => {
@@ -41,7 +41,7 @@ const AdminLoja = () => {
       
       <div className="admin-loja-actions">
         <button onClick={goToEditLojinhaHeader}>Editar Cabeçalho</button>
-        <button onClick={goToEditBanner}>Editar Banner</button>
+        <button onClick={goToBannerAdmin}>Editar Banner</button>
         <button onClick={goToEditDestaques}>Editar Destaques</button>
         <button onClick={goToEditProdutos}>Editar Produtos</button>
         <button onClick={goToEditCategorias}>Editar Categorias</button>

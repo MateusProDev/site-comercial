@@ -5,6 +5,7 @@ import { db } from "../../firebase/firebaseConfig";
 import { collection, onSnapshot } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
 import LojinhaHeader from "./LojinhaHeader/LojinhaHeader";
+import BannerRotativo from "./BannerRotativo/BannerRotativo"
 import "./Lojinha.css";
 
 const Lojinha = () => {
@@ -60,7 +61,8 @@ const Lojinha = () => {
         <FiShoppingBag className="cartIcon" />
         {cart.length > 0 && <span className="cartCount">{cart.length}</span>}
       </div>
-
+      <BannerRotativo />
+      <div className="lojaFlex">
       <main className="mainContent">
         <section className="categories">
           <h2>Categorias</h2>
@@ -130,6 +132,7 @@ const Lojinha = () => {
           </div>
         </section>
       </main>
+      </div>
       <Footer />
     </div>
   );

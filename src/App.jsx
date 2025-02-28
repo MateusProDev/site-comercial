@@ -14,6 +14,7 @@ import EditHours from "./components/Admin/EditHours/EditHours";
 import LojaLogin from "./pages/LojaLogin/LojaLogin";
 import Lojinha from "./components/Lojinha/Lojinha";
 import AdminLoja from "./components/Admin/AdminLoja/AdminLoja";
+import BannerAdmin from "./components/Admin/BannerAdmin/BannerAdmin";
 import { auth } from "./firebase/firebaseConfig";
 import EditLojinhaHeader from "./components/Admin/EditLojinhaHeader/EditLojinhaHeader";
 
@@ -111,6 +112,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <AdminLoja />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/banner-admin"
+          element={
+            <ProtectedRoute>
+              <BannerAdmin />
             </ProtectedRoute>
           }
         />
