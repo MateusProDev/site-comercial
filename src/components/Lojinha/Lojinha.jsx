@@ -6,6 +6,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
 import LojinhaHeader from "./LojinhaHeader/LojinhaHeader";
 import BannerRotativo from "./BannerRotativo/BannerRotativo"
+import { FaUser } from 'react-icons/fa'; // Certifique-se de importar o ícone corretamente
 import "./Lojinha.css";
 
 const Lojinha = () => {
@@ -130,7 +131,16 @@ const Lojinha = () => {
             <p><strong>Total:</strong> R${total.toFixed(2)}</p>
             <button className="btnCar" onClick={handleFinalizePurchase}>Finalizar Compra</button>
           </div>
+          
+          {/* Seção para o ícone de login/admin */}
+          <div className="cartLoginAdmin">
+            <Link to="/loja/login" className="adminLink">
+              <FaUser /> {/* Ícone de usuário */}
+              Painel Administrativo
+            </Link>
+          </div>
         </section>
+
       </main>
       </div>
       <Footer />

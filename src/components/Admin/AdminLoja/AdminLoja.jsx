@@ -7,7 +7,7 @@ const AdminLoja = () => {
   const navigate = useNavigate();
 
   const goToEditLojinhaHeader = () => {
-    navigate("/admin/edit-lojinhaHeader");
+    navigate("/loja/admin/edit-lojinhaHeader");
   };
 
   const goToBannerAdmin = () => {
@@ -27,8 +27,8 @@ const AdminLoja = () => {
   };
 
   const goToHome = () => {
-    navigate("/");
-  };
+    navigate("/lojinha");
+  };  
 
   const handleLogout = async () => {
     await auth.signOut();

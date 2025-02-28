@@ -600,3 +600,29 @@
   color: green;
   font-weight: bold;
 }
+/* button admin loja  */
+.cartLoginAdmin {
+  position: absolute;
+  bottom: 60px;
+  right: 50px;
+}
+
+.adminLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #007bff; /* Cor de fundo do ícone */
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.adminLink:hover {
+  background-color: #0056b3; /* Cor de fundo ao passar o mouse */
+}
+
+.adminLink svg {
+  font-size: 30px; /* Tamanho do ícone */
+  margin-right: 8px;
+}

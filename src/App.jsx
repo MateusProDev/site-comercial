@@ -123,6 +123,14 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/lojinha"
+          element={
+            <ProtectedRoute>
+              <Lojinha />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Rota de login administrativo */}
         <Route path="/admin/login" element={<AdminLogin />} />
