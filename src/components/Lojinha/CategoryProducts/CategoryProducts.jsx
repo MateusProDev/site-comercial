@@ -5,7 +5,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import "./CategoryProducts.css";
 
 const CategoryProducts = () => {
-  const { categoryKey } = useParams();
+  const { categoryKey } = useParams(); // Ex.: "Fones-de-ouvidos"
   const [category, setCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [expanded, setExpanded] = useState(false);
@@ -20,17 +20,20 @@ const CategoryProducts = () => {
         console.log("Dados carregados do Firestore em CategoryProducts:", data);
         const categories = data.categories || {};
 
-        if (categories[categoryKey]) {
-          const productsArray = Object.entries(categories[categoryKey].products || {}).map(
+        // Converte hífens em espaços para buscar no Firestore
+        const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
+
+        if (categories[firestoreCategoryKey]) {
+          const productsArray = Object.entries(categories[firestoreCategoryKey].products || {}).map(
             ([productName, productData]) => ({
               name: productName,
               ...productData,
             })
           );
-          setCategory({ title: categoryKey, products: productsArray });
+          setCategory({ title: firestoreCategoryKey, products: productsArray });
         } else {
           setCategory(null);
-          console.log(`Categoria '${categoryKey}' não encontrada em 'lojinha/produtos'`);
+          console.log(`Categoria '${firestoreCategoryKey}' não encontrada em 'lojinha/produtos'`);
         }
       } else {
         console.log("Documento 'produtos' não encontrado em 'lojinha'");
@@ -59,7 +62,7 @@ const CategoryProducts = () => {
   };
 
   if (loading) return <div>Carregando produtos...</div>;
-  if (!category) return <div>Categoria '{categoryKey}' não encontrada.</div>;
+  if (!category) return <div>Categoria '{categoryKey.replace(/-/g, " ")}' não encontrada.</div>;
 
   return (
     <div className="category-products-container">
@@ -81,7 +84,7 @@ const CategoryProducts = () => {
             {visibleProducts.map((product) => (
               <Link
                 key={product.name}
-                to={`/produto/${category.title}/${product.name}`} // Confirmação da rota
+                to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`} // Mantém hífens na URL
                 className="product-item-link"
               >
                 <div className="product-item">

@@ -107,10 +107,11 @@ const Lojinha = () => {
             <h2>Categorias</h2>
             <div className="categoryList">
               {Object.keys(categories).map((cat, index) => (
-                <Link key={index} to={`/lojinha/produtos/${cat}`}>
+                <Link key={index} to={`/lojinha/produtos/${cat.replace(/\s+/g, "-")}`}>
                   {cat}
                 </Link>
               ))}
+              <Link to="/lojinha">Destaque</Link>
             </div>
           </section>
 
@@ -151,7 +152,7 @@ const Lojinha = () => {
                           visibleProducts.map((product) => (
                             <Link
                               key={product.name}
-                              to={`/produto/${category.title}/${product.name}`}
+                              to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`} // Links ajustados
                               className="product-item-link"
                             >
                               <div className="productItem">
@@ -216,4 +217,4 @@ const Lojinha = () => {
   );
 };
 
-export default Lojinha; 
+export default Lojinha;

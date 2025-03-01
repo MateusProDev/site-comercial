@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { FaShareAlt } from "react-icons/fa"; // Ícone de compartilhamento
+import { FaShareAlt } from "react-icons/fa";
 import { db, auth } from "../../../firebase/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useCart } from "../../../context/CartContext/CartContext";
@@ -20,7 +20,10 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${productKey}`);
+        // Corrige categoryKey e productKey para corresponder ao Firestore (substitui hífens por espaços)
+        const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
+        const firestoreProductKey = productKey.replace(/-/g, " ");
+        const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
         const productDoc = await getDoc(productDetailRef);
 
         if (productDoc.exists()) {
@@ -30,9 +33,9 @@ const ProductDetail = () => {
           const productsDoc = await getDoc(productsRef);
           if (productsDoc.exists()) {
             const categories = productsDoc.data().categories || {};
-            const productData = categories[categoryKey]?.products[productKey];
+            const productData = categories[firestoreCategoryKey]?.products[firestoreProductKey];
             if (productData) {
-              setProduct({ name: productKey, ...productData });
+              setProduct({ name: firestoreProductKey, ...productData });
             } else {
               setError("Produto não encontrado.");
             }
@@ -75,7 +78,9 @@ const ProductDetail = () => {
     };
 
     try {
-      const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${productKey}`);
+      const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
+      const firestoreProductKey = productKey.replace(/-/g, " ");
+      const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
       const updatedRatings = product.ratings ? [...product.ratings, newRating] : [newRating];
       await updateDoc(productDetailRef, { ratings: updatedRatings });
       setProduct((prev) => ({ ...prev, ratings: updatedRatings }));
@@ -90,12 +95,7 @@ const ProductDetail = () => {
   };
 
   const handleShareLink = () => {
-    // Gera o link sem espaços, substituindo por hífens
-    const safeCategoryKey = categoryKey.replace(/\s+/g, "-");
-    const safeProductKey = productKey.replace(/\s+/g, "-");
-    const link = `${window.location.origin}/produto/${safeCategoryKey}/${safeProductKey}`;
-
-    // Usa a Web Share API se disponível
+    const link = `${window.location.origin}/produto/${categoryKey}/${productKey}`; // Já está com hífens
     if (navigator.share) {
       navigator
         .share({
@@ -106,7 +106,6 @@ const ProductDetail = () => {
         .then(() => console.log("Compartilhamento bem-sucedido"))
         .catch((error) => console.error("Erro ao compartilhar:", error));
     } else {
-      // Fallback para copiar o link
       navigator.clipboard
         .writeText(link)
         .then(() => alert("Link copiado para a área de transferência!"))
@@ -165,7 +164,7 @@ const ProductDetail = () => {
             Adicionar ao Carrinho
           </button>
           <button className="share-btn" onClick={handleShareLink} title="Compartilhar">
-            <FaShareAlt /> {/* Ícone de compartilhamento */}
+            <FaShareAlt />
           </button>
         </div>
       </div>

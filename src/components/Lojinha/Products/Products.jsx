@@ -87,7 +87,7 @@ const Products = () => {
                   {visibleProducts.map((product) => (
                     <Link
                       key={product.name}
-                      to={`/produto/${category.title}/${product.name}`} // Link para detalhes
+                      to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`} // Links com hífens
                       className="product-item-link"
                     >
                       <div className="product-item">
