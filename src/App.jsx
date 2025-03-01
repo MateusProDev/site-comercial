@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { CartProvider } from "./context/CartContext/CartContext"; // Importe o CartProvider
+import { CartProvider } from "./context/CartContext/CartContext";
 import Home from "./pages/Home/Home";
 import AboutPage from "./pages/AboutPage/AboutPage";
 import AdminLogin from "./components/Admin/AdminLogin/AdminLogin";
@@ -17,29 +17,30 @@ import Lojinha from "./components/Lojinha/Lojinha";
 import AdminLoja from "./components/Admin/AdminLoja/AdminLoja";
 import BannerAdmin from "./components/Admin/BannerAdmin/BannerAdmin";
 import EditLojinhaHeader from "./components/Admin/EditLojinhaHeader/EditLojinhaHeader";
-import EditProducts from "./components/Admin/EditProducts/EditProducts"; // Novo componente
-import Products from "./components/Lojinha/Products/Products"; // Novo componente
-import ProductDetail from "./components/Lojinha/ProductDetail/ProductDetail"; // Novo componente
+import EditProducts from "./components/Admin/EditProducts/EditProducts";
+import Products from "./components/Lojinha/Products/Products";
+import CategoryProducts from "./components/Lojinha/CategoryProducts/CategoryProducts";
+import ProductDetail from "./components/Lojinha/ProductDetail/ProductDetail";
 import { auth } from "./firebase/firebaseConfig";
 
-// Componente para proteger rotas administrativas
 const ProtectedRoute = ({ children }) => {
-  const user = auth.currentUser; // Verifica se o usuário está autenticado
-  return user ? children : <Navigate to="/loja/login" />; // Redireciona para o login se não estiver autenticado
+  const user = auth.currentUser;
+  return user ? children : <Navigate to="/loja/login" />;
 };
 
 const App = () => {
   return (
-    <CartProvider> {/* Envolve toda a aplicação com o CartProvider */}
+    <CartProvider>
       <Router>
         <Routes>
           {/* Rotas públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/loja/login" element={<LojaLogin />} />
-          <Route path="/lojinha" element={<Lojinha />} /> {/* Rota pública para Lojinha */}
-          <Route path="/products" element={<Products />} /> {/* Rota pública para Products */}
-          <Route path="/produto/:categoryIndex/:productIndex" element={<ProductDetail />} /> {/* Rota pública para detalhes */}
+          <Route path="/lojinha" element={<Lojinha />} />
+          <Route path="/lojinha/produtos" element={<Products />} />
+          <Route path="/lojinha/produtos/:categoryKey" element={<CategoryProducts />} />
+          <Route path="/produto/:categoryKey/:productKey" element={<ProductDetail />} /> {/* Corrigido */}
 
           {/* Rotas administrativas protegidas */}
           <Route
@@ -131,7 +132,7 @@ const App = () => {
             }
           />
           <Route
-            path="/admin/edit-products" // Nova rota para edição de produtos
+            path="/admin/edit-products"
             element={
               <ProtectedRoute>
                 <EditProducts />

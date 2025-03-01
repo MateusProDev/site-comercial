@@ -6,7 +6,7 @@ import { useCart } from "../../../context/CartContext/CartContext";
 import "./ProductDetail.css";
 
 const ProductDetail = () => {
-  const { categoryIndex, productIndex } = useParams();
+  const { categoryKey, productKey } = useParams(); // Ajustado para categoryKey e productKey
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,7 +19,8 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const productDetailRef = doc(db, "lojinha", `product-details-${categoryIndex}-${productIndex}`);
+        // Busca diretamente o documento com categoryKey e productKey
+        const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${productKey}`);
         const productDoc = await getDoc(productDetailRef);
 
         if (productDoc.exists()) {
@@ -30,12 +31,9 @@ const ProductDetail = () => {
           const productsDoc = await getDoc(productsRef);
           if (productsDoc.exists()) {
             const categories = productsDoc.data().categories || {};
-            const categoryKeys = Object.keys(categories);
-            const categoryKey = categoryKeys[parseInt(categoryIndex)];
-            const productKeys = Object.keys(categories[categoryKey]?.products || {});
-            const productData = categories[categoryKey]?.products[productKeys[parseInt(productIndex)]];
+            const productData = categories[categoryKey]?.products[productKey];
             if (productData) {
-              setProduct({ name: productKeys[parseInt(productIndex)], ...productData });
+              setProduct({ name: productKey, ...productData });
             } else {
               setError("Produto não encontrado.");
             }
@@ -52,7 +50,7 @@ const ProductDetail = () => {
     };
 
     fetchProductDetails();
-  }, [categoryIndex, productIndex]);
+  }, [categoryKey, productKey]);
 
   const handleAddToCart = () => {
     if (product) {
@@ -78,7 +76,7 @@ const ProductDetail = () => {
     };
 
     try {
-      const productDetailRef = doc(db, "lojinha", `product-details-${categoryIndex}-${productIndex}`);
+      const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${productKey}`);
       const updatedRatings = product.ratings ? [...product.ratings, newRating] : [newRating];
       await updateDoc(productDetailRef, { ratings: updatedRatings });
       setProduct((prev) => ({ ...prev, ratings: updatedRatings }));
@@ -93,12 +91,12 @@ const ProductDetail = () => {
   };
 
   const handleShareLink = () => {
-    const link = `${window.location.origin}/produto/${categoryIndex}/${productIndex}`;
+    const link = `${window.location.origin}/produto/${categoryKey}/${productKey}`;
     navigator.clipboard.writeText(link).then(() => alert("Link copiado para a área de transferência!"));
   };
 
   const handleImageChange = (direction) => {
-    const images = [product.imageUrl, ...(product.additionalImages || [])];
+    const images = [product?.imageUrl, ...(product?.additionalImages || [])];
     if (direction === "next") {
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     } else {
@@ -109,15 +107,15 @@ const ProductDetail = () => {
   if (loading) return <div>Carregando...</div>;
   if (error) return <div className="error">{error}</div>;
 
-  const allImages = [product.imageUrl, ...(product.additionalImages || [])];
+  const allImages = [product?.imageUrl, ...(product?.additionalImages || [])];
 
   return (
     <div className="product-detail">
-      <h1>{product.name}</h1>
+      <h1>{product?.name || "Produto"}</h1>
       {success && <p className="success">{success}</p>}
       <div className="product-detail-content">
         <div className="image-gallery">
-          <img src={allImages[currentImageIndex]} alt={product.name} className="main-image" />
+          <img src={allImages[currentImageIndex]} alt={product?.name || "Produto"} className="main-image" />
           <div className="image-controls">
             <button onClick={() => handleImageChange("prev")}>◄</button>
             <button onClick={() => handleImageChange("next")}>►</button>
@@ -127,7 +125,7 @@ const ProductDetail = () => {
               <img
                 key={idx}
                 src={img}
-                alt={`${product.name} ${idx}`}
+                alt={`${product?.name || "Produto"} ${idx}`}
                 className={`thumbnail ${idx === currentImageIndex ? "active" : ""}`}
                 onClick={() => setCurrentImageIndex(idx)}
               />
@@ -135,12 +133,12 @@ const ProductDetail = () => {
           </div>
         </div>
         <div className="details">
-          <p>{product.description}</p>
-          <p>{product.details}</p>
+          <p>{product?.description || "Sem descrição disponível"}</p>
+          <p>{product?.details || "Sem detalhes adicionais"}</p>
           <div className="price-info">
-            <span className="anchor-price">R${product.anchorPrice.toFixed(2)}</span>
-            <span className="current-price">R${product.price.toFixed(2)}</span>
-            {product.discountPercentage > 0 && (
+            <span className="anchor-price">R${product?.anchorPrice.toFixed(2)}</span>
+            <span className="current-price">R${product?.price.toFixed(2)}</span>
+            {product?.discountPercentage > 0 && (
               <span className="discount">{product.discountPercentage}% OFF</span>
             )}
           </div>
@@ -155,7 +153,7 @@ const ProductDetail = () => {
 
       <div className="ratings-section">
         <h2>Avaliações</h2>
-        {product.ratings && product.ratings.length > 0 ? (
+        {product?.ratings && product.ratings.length > 0 ? (
           product.ratings.map((r, idx) => (
             <div key={idx} className="rating">
               <div className="stars">{"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}</div>

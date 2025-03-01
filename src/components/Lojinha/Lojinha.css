@@ -691,3 +691,10 @@
 .admin-form {
   margin-bottom: 40px;
 }
+/* Adicionar ao final do arquivo */
+.product-item-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Restante do CSS permanece igual */

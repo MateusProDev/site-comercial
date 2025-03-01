@@ -1,71 +1,116 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
 import { doc, onSnapshot } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
-import { useCart } from "../../../context/CartContext/CartContext"; // Importe o hook
 import "./Products.css";
 
 const Products = () => {
-  const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
-  const { addToCart } = useCart(); // Use o contexto
+  const [categories, setCategories] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const productsRef = doc(db, "lojinha", "products");
+    const productsRef = doc(db, "lojinha", "produtos");
 
     const unsubscribe = onSnapshot(productsRef, (docSnap) => {
       if (docSnap.exists()) {
-        setCategories(docSnap.data().categories || []);
+        const data = docSnap.data();
+        console.log("Dados carregados do Firestore em Products:", data);
+        setCategories(data.categories || {});
       } else {
-        console.log("Categorias não encontradas!");
+        console.log("Documento 'produtos' não encontrado em 'lojinha'");
+        setCategories({});
       }
+      setLoading(false);
+    }, (error) => {
+      console.error("Erro ao carregar produtos:", error);
+      setCategories({});
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const handleProductClick = (categoryIndex, productIndex) => {
-    navigate(`/produto/${categoryIndex}/${productIndex}`);
+  const filteredCategories = loading || !categories
+    ? []
+    : Object.entries(categories)
+        .map(([categoryName, categoryData]) => {
+          const productsArray = Object.entries(categoryData.products || {}).map(([productName, productData]) => ({
+            name: productName,
+            ...productData,
+          }));
+          const filteredProducts = productsArray.filter((product) =>
+            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          return {
+            title: categoryName,
+            products: filteredProducts,
+          };
+        })
+        .filter((category) => category.products.length > 0);
+
+  const toggleCategoryExpansion = (categoryTitle) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryTitle]: !prev[categoryTitle],
+    }));
   };
 
-  const handleAddToCart = (product) => {
-    addToCart({ ...product, preco: product.price, nome: product.name }); // Normaliza os campos
-  };
+  if (loading) return <div>Carregando produtos...</div>;
 
   return (
     <div className="products-container">
-      {categories.map((category, categoryIndex) => (
-        <div key={categoryIndex} className="category-section">
-          <h2 className="category-title">{category.title}</h2>
-          <div className="category-products">
-            {category.products.map((product, productIndex) => (
-              <div
-                key={productIndex}
-                className="product-box"
-                onClick={() => handleProductClick(categoryIndex, productIndex)}
-              >
-                <div className="discount-tag">
-                  {product.discountPercentage > 0 && `${product.discountPercentage}% OFF`}
+      <h1>Todos os Produtos</h1>
+      <section className="search-bar">
+        <input
+          type="text"
+          placeholder="Pesquisar produtos por nome ou categoria..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </section>
+
+      <section className="products-list">
+        {filteredCategories.length === 0 ? (
+          <p>Nenhum produto encontrado.</p>
+        ) : (
+          filteredCategories.map((category) => {
+            const isExpanded = expandedCategories[category.title];
+            const visibleProducts = isExpanded ? category.products : category.products.slice(0, 2);
+
+            return (
+              <div key={category.title} className="category-section">
+                <h2>{category.title}</h2>
+                <div className="product-grid">
+                  {visibleProducts.map((product) => (
+                    <Link
+                      key={product.name}
+                      to={`/produto/${category.title}/${product.name}`} // Link para detalhes
+                      className="product-item-link"
+                    >
+                      <div className="product-item">
+                        <img src={product.imageUrl} alt={product.name} className="product-image" />
+                        <p>{product.name} - R${product.price.toFixed(2)}</p>
+                        {product.description && <p>{product.description}</p>}
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-                <img src={product.imageUrl} alt={product.name} />
-                <h3>{product.name}</h3>
-                <div className="price-info">
-                  <span className="anchor-price">R${product.anchorPrice.toFixed(2)}</span>
-                  <span className="current-price">R${product.price.toFixed(2)}</span>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Impede o clique de redirecionar
-                    handleAddToCart(product);
-                  }}
-                >
-                  Adicionar ao Carrinho
-                </button>
+                {category.products.length > 2 && (
+                  <button
+                    className="see-more-btn"
+                    onClick={() => toggleCategoryExpansion(category.title)}
+                  >
+                    {isExpanded ? "Ver menos" : "Ver mais"}
+                  </button>
+                )}
               </div>
-            ))}
-          </div>
-        </div>
-      ))}
+            );
+          })
+        )}
+      </section>
     </div>
   );
 };

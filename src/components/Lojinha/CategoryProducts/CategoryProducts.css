@@ -1,10 +1,10 @@
-.products-container {
+.category-products-container {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
   }
   
-  .products-container h1 {
+  .category-products-container h1 {
     font-size: 28px;
     color: #333;
     text-align: center;
@@ -32,21 +32,10 @@
     outline: none;
   }
   
-  .products-list {
+  .category-products-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
-  }
-  
-  .category-section {
-    margin-bottom: 30px;
-  }
-  
-  .category-section h2 {
-    font-size: 22px;
-    color: #333;
-    margin-bottom: 15px;
-    text-align: left;
   }
   
   .product-grid {

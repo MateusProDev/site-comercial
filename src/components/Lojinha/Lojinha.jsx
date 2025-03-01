@@ -51,7 +51,6 @@ const Lojinha = () => {
     window.open(whatsappUrl, "_blank");
   };
 
-  // Filtragem corrigida para mapas
   const filteredCategories = loading || !categories
     ? []
     : Object.entries(categories)
@@ -108,11 +107,10 @@ const Lojinha = () => {
             <h2>Categorias</h2>
             <div className="categoryList">
               {Object.keys(categories).map((cat, index) => (
-                <Link key={index} to={`/categoria/${cat.toLowerCase()}`}>
+                <Link key={index} to={`/lojinha/produtos/${cat}`}>
                   {cat}
                 </Link>
               ))}
-              <Link to="/lojinha">Destaque</Link>
             </div>
           </section>
 
@@ -150,19 +148,25 @@ const Lojinha = () => {
                         {visibleProducts.length === 0 ? (
                           <p>Nenhum produto disponível nesta categoria.</p>
                         ) : (
-                          visibleProducts.map((product, productIndex) => (
-                            <div key={productIndex} className="productItem">
-                              <img src={product.imageUrl} alt={product.name} className="productImage" />
-                              <p>{product.name} - R${product.price.toFixed(2)}</p>
-                              {product.description ? (
-                                <p>{product.description}</p>
-                              ) : (
-                                <p className="noDescription">Descrição não disponível</p>
-                              )}
-                              <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
-                                Adicionar ao Carrinho
-                              </button>
-                            </div>
+                          visibleProducts.map((product) => (
+                            <Link
+                              key={product.name}
+                              to={`/produto/${category.title}/${product.name}`}
+                              className="product-item-link"
+                            >
+                              <div className="productItem">
+                                <img src={product.imageUrl} alt={product.name} className="productImage" />
+                                <p>{product.name} - R${product.price.toFixed(2)}</p>
+                                {product.description ? (
+                                  <p>{product.description}</p>
+                                ) : (
+                                  <p className="noDescription">Descrição não disponível</p>
+                                )}
+                                <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
+                                  Adicionar ao Carrinho
+                                </button>
+                              </div>
+                            </Link>
                           ))
                         )}
                         {category.products.length > 2 && (
