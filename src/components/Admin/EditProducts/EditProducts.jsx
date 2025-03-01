@@ -7,30 +7,32 @@ import "./EditProducts.css";
 
 const EditProducts = () => {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState({});
   const [newCategoryTitle, setNewCategoryTitle] = useState("");
   const [newProduct, setNewProduct] = useState({
-    categoryIndex: null,
+    categoryKey: null, // Mudado de categoryIndex para categoryKey
     name: "",
     description: "",
     price: "",
     anchorPrice: "",
     discountPercentage: "",
     image: null,
+    additionalImages: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [editCategoryIndex, setEditCategoryIndex] = useState(null);
-  const [editProductIndex, setEditProductIndex] = useState(null);
+  const [editCategoryKey, setEditCategoryKey] = useState(null);
+  const [editProductKey, setEditProductKey] = useState(null);
+  const [expandedCategories, setExpandedCategories] = useState({});
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const productsRef = doc(db, "lojinha", "products");
+        const productsRef = doc(db, "lojinha", "produtos");
         const productsDoc = await getDoc(productsRef);
         if (productsDoc.exists()) {
-          setCategories(productsDoc.data().categories || []);
+          setCategories(productsDoc.data().categories || {});
         }
       } catch (error) {
         setError("Erro ao carregar dados.");
@@ -42,7 +44,6 @@ const EditProducts = () => {
 
   const handleImageUpload = async (file) => {
     if (!file) return null;
-
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "qc7tkpck");
@@ -60,149 +61,150 @@ const EditProducts = () => {
     }
   };
 
+  const calculateDiscount = (price, anchorPrice) => {
+    if (!price || !anchorPrice || price >= anchorPrice) return 0;
+    return Math.round(((anchorPrice - price) / anchorPrice) * 100);
+  };
+
   const handleAddCategory = () => {
     if (!newCategoryTitle) {
       setError("Digite um título para a categoria!");
       return;
     }
-    setCategories((prev) => [...prev, { title: newCategoryTitle, products: [] }]);
+    setCategories((prev) => ({
+      ...prev,
+      [newCategoryTitle]: { products: {} }
+    }));
     setNewCategoryTitle("");
   };
 
   const handleAddProduct = async () => {
-    const { name, description, price, anchorPrice, discountPercentage, image, categoryIndex } = newProduct;
+    const { name, description, price, anchorPrice, image, additionalImages, categoryKey } = newProduct;
 
     if (!name || !description || !price || !anchorPrice || !image) {
-      setError("Preencha todos os campos do produto!");
+      setError("Preencha todos os campos obrigatórios do produto!");
       return;
     }
 
     setLoading(true);
 
     const imageUrl = await handleImageUpload(image);
+    const additionalImageUrls = await Promise.all(additionalImages.map(handleImageUpload));
 
     if (imageUrl) {
-      const updatedCategories = [...categories];
+      const updatedCategories = { ...categories };
       const newProductData = {
-        name,
         description,
         price: parseFloat(price),
         anchorPrice: parseFloat(anchorPrice),
-        discountPercentage: parseFloat(discountPercentage) || 0,
+        discountPercentage: calculateDiscount(parseFloat(price), parseFloat(anchorPrice)),
         imageUrl,
+        additionalImages: additionalImageUrls.filter(Boolean),
       };
-      updatedCategories[categoryIndex].products.push(newProductData);
+      updatedCategories[categoryKey].products[name] = newProductData;
 
       try {
-        // Salvar as categorias e produtos
-        await setDoc(doc(db, "lojinha", "products"), { categories: updatedCategories });
-
-        // Criar uma entrada estática para os detalhes do produto
-        const productDetailRef = doc(
-          db,
-          "lojinha",
-          `product-details-${categoryIndex}-${updatedCategories[categoryIndex].products.length - 1}`
-        );
+        await setDoc(doc(db, "lojinha", "produtos"), { categories: updatedCategories });
+        const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${name}`);
         await setDoc(productDetailRef, {
           ...newProductData,
-          categoryIndex,
-          productIndex: updatedCategories[categoryIndex].products.length - 1,
+          name,
+          category: categoryKey,
+          productKey: name,
           details: "Detalhes adicionais podem ser editados aqui.",
+          ratings: [],
         });
 
         setCategories(updatedCategories);
-        setNewProduct({ categoryIndex: null, name: "", description: "", price: "", anchorPrice: "", discountPercentage: "", image: null });
+        setNewProduct({ categoryKey: null, name: "", description: "", price: "", anchorPrice: "", discountPercentage: "", image: null, additionalImages: [] });
         setSuccess("Produto e detalhes adicionados com sucesso!");
       } catch (error) {
         setError("Erro ao salvar o produto ou detalhes.");
         console.error(error);
       }
     }
-
     setLoading(false);
   };
 
-  const handleDeleteProduct = (categoryIndex, productIndex) => {
-    const updatedCategories = [...categories];
-    updatedCategories[categoryIndex].products.splice(productIndex, 1);
-
-    setDoc(doc(db, "lojinha", "products"), { categories: updatedCategories })
-      .then(() => {
-        setCategories(updatedCategories);
-      })
-      .catch((error) => {
-        setError("Erro ao excluir o produto.");
-      });
+  const handleDeleteProduct = (categoryKey, productKey) => {
+    const updatedCategories = { ...categories };
+    delete updatedCategories[categoryKey].products[productKey];
+    setDoc(doc(db, "lojinha", "produtos"), { categories: updatedCategories })
+      .then(() => setCategories(updatedCategories))
+      .catch((error) => setError("Erro ao excluir o produto."));
   };
 
-  const handleDeleteCategory = (categoryIndex) => {
-    const updatedCategories = categories.filter((_, index) => index !== categoryIndex);
-
-    setDoc(doc(db, "lojinha", "products"), { categories: updatedCategories })
+  const handleDeleteCategory = (categoryKey) => {
+    const updatedCategories = { ...categories };
+    delete updatedCategories[categoryKey];
+    setDoc(doc(db, "lojinha", "produtos"), { categories: updatedCategories })
       .then(() => {
         setCategories(updatedCategories);
         setSuccess("Categoria excluída com sucesso!");
       })
-      .catch((error) => {
-        setError("Erro ao excluir a categoria.");
-      });
+      .catch((error) => setError("Erro ao excluir a categoria."));
   };
 
-  const handleSaveCategory = (categoryIndex) => {
-    const updatedCategories = [...categories];
-    updatedCategories[categoryIndex].title = newCategoryTitle;
+  const handleSaveCategory = (categoryKey) => {
+    const updatedCategories = { ...categories };
+    updatedCategories[newCategoryTitle] = updatedCategories[categoryKey];
+    delete updatedCategories[categoryKey];
     setCategories(updatedCategories);
-    setEditCategoryIndex(null);
+    setEditCategoryKey(null);
     setSuccess("Categoria atualizada!");
   };
 
-  const handleSaveProduct = async (categoryIndex, productIndex) => {
-    const updatedCategories = [...categories];
-    const product = updatedCategories[categoryIndex].products[productIndex];
+  const handleSaveProduct = async (categoryKey, productKey) => {
+    const updatedCategories = { ...categories };
+    const product = updatedCategories[categoryKey].products[productKey];
 
     let imageUrl = product.imageUrl;
     if (newProduct.image && typeof newProduct.image !== "string") {
       imageUrl = await handleImageUpload(newProduct.image);
     }
+    const additionalImageUrls = await Promise.all(newProduct.additionalImages.map(handleImageUpload));
 
-    updatedCategories[categoryIndex].products[productIndex] = {
-      ...product,
-      name: newProduct.name,
+    updatedCategories[categoryKey].products[newProduct.name] = {
       description: newProduct.description,
       price: parseFloat(newProduct.price),
       anchorPrice: parseFloat(newProduct.anchorPrice),
-      discountPercentage: parseFloat(newProduct.discountPercentage) || 0,
+      discountPercentage: calculateDiscount(parseFloat(newProduct.price), parseFloat(newProduct.anchorPrice)),
       imageUrl: imageUrl || product.imageUrl,
+      additionalImages: additionalImageUrls.filter(Boolean).length > 0 ? additionalImageUrls : product.additionalImages || [],
     };
+    if (newProduct.name !== productKey) {
+      delete updatedCategories[categoryKey].products[productKey];
+    }
 
     setCategories(updatedCategories);
-    setEditProductIndex(null);
+    setEditProductKey(null);
     setSuccess("Produto atualizado com sucesso!");
   };
 
-  const handleEditCategory = (categoryIndex) => {
-    setNewCategoryTitle(categories[categoryIndex].title);
-    setEditCategoryIndex(categoryIndex);
+  const handleEditCategory = (categoryKey) => {
+    setNewCategoryTitle(categoryKey);
+    setEditCategoryKey(categoryKey);
   };
 
-  const handleEditProduct = (categoryIndex, productIndex) => {
-    const product = categories[categoryIndex].products[productIndex];
+  const handleEditProduct = (categoryKey, productKey) => {
+    const product = categories[categoryKey].products[productKey];
     setNewProduct({
-      name: product.name,
+      name: productKey,
       description: product.description,
       price: product.price.toString(),
       anchorPrice: product.anchorPrice.toString(),
       discountPercentage: product.discountPercentage.toString(),
       image: product.imageUrl,
-      categoryIndex,
+      additionalImages: product.additionalImages || [],
+      categoryKey,
     });
-    setEditProductIndex(productIndex);
+    setEditProductKey(productKey);
   };
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      await setDoc(doc(db, "lojinha", "products"), { categories });
+      await setDoc(doc(db, "lojinha", "produtos"), { categories });
       setSuccess("Alterações salvas!");
       setTimeout(() => navigate("/admin/dashboard"), 2000);
     } catch (error) {
@@ -210,6 +212,13 @@ const EditProducts = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleCategoryExpansion = (categoryKey) => {
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryKey]: !prev[categoryKey],
+    }));
   };
 
   return (
@@ -231,150 +240,183 @@ const EditProducts = () => {
       </div>
 
       <div className="categories-list">
-        {categories.map((category, categoryIndex) => (
-          <div key={categoryIndex} className="category">
-            {editCategoryIndex === categoryIndex ? (
-              <div>
-                <input
-                  type="text"
-                  value={newCategoryTitle}
-                  onChange={(e) => setNewCategoryTitle(e.target.value)}
-                />
-                <button onClick={() => handleSaveCategory(categoryIndex)} disabled={loading}>
-                  Salvar
-                </button>
-              </div>
-            ) : (
-              <>
-                <h3>{category.title}</h3>
-                <button onClick={() => handleEditCategory(categoryIndex)} disabled={loading}>
-                  Editar Categoria
-                </button>
-              </>
-            )}
+        {Object.entries(categories).map(([categoryKey, categoryData], index) => {
+          const isExpanded = expandedCategories[categoryKey];
+          const productsArray = Object.entries(categoryData.products || {}).map(([name, data]) => ({ name, ...data }));
+          const visibleProducts = isExpanded ? productsArray : productsArray.slice(0, 2);
 
-            <button
-              onClick={() => handleDeleteCategory(categoryIndex)}
-              className="delete-category-btn"
-              disabled={loading}
-            >
-              Excluir Categoria
-            </button>
-
-            {newProduct.categoryIndex === categoryIndex && (
-              <div className="add-product-form">
-                <input
-                  type="text"
-                  placeholder="Nome do Produto"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                />
-                <textarea
-                  placeholder="Descrição"
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                />
-                <input
-                  type="number"
-                  placeholder="Preço (R$)"
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                />
-                <input
-                  type="number"
-                  placeholder="Preço de Ancoragem (R$)"
-                  value={newProduct.anchorPrice}
-                  onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
-                />
-                <input
-                  type="number"
-                  placeholder="Desconto (%)"
-                  value={newProduct.discountPercentage}
-                  onChange={(e) => setNewProduct({ ...newProduct, discountPercentage: e.target.value })}
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-                />
-                <button onClick={handleAddProduct} disabled={loading}>
-                  {loading ? "Adicionando..." : "Adicionar Produto"}
-                </button>
-              </div>
-            )}
-
-            <button
-              onClick={() => setNewProduct({ ...newProduct, categoryIndex })}
-              disabled={loading}
-            >
-              Adicionar Produto
-            </button>
-
-            <div className="products-list">
-              {category.products.map((product, productIndex) => (
-                <div key={productIndex} className="product">
-                  {editProductIndex === productIndex ? (
-                    <div>
-                      <input
-                        type="text"
-                        value={newProduct.name}
-                        onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                      />
-                      <textarea
-                        value={newProduct.description}
-                        onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                      />
-                      <input
-                        type="number"
-                        value={newProduct.price}
-                        onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                      />
-                      <input
-                        type="number"
-                        value={newProduct.anchorPrice}
-                        onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
-                      />
-                      <input
-                        type="number"
-                        value={newProduct.discountPercentage}
-                        onChange={(e) => setNewProduct({ ...newProduct, discountPercentage: e.target.value })}
-                      />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-                      />
-                      <button onClick={() => handleSaveProduct(categoryIndex, productIndex)} disabled={loading}>
-                        Salvar Produto
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <img src={product.imageUrl} alt={product.name} />
-                      <h4>{product.name}</h4>
-                      <p>{product.description}</p>
-                      <p>Preço: R${product.price.toFixed(2)}</p>
-                      <p>Ancoragem: R${product.anchorPrice.toFixed(2)}</p>
-                      <p>Desconto: {product.discountPercentage}%</p>
-                      <button onClick={() => handleEditProduct(categoryIndex, productIndex)} disabled={loading}>
-                        Editar Produto
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProduct(categoryIndex, productIndex)}
-                        disabled={loading}
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  )}
+          return (
+            <div key={categoryKey} className="category">
+              {editCategoryKey === categoryKey ? (
+                <div className="edit-category-form">
+                  <input
+                    type="text"
+                    value={newCategoryTitle}
+                    onChange={(e) => setNewCategoryTitle(e.target.value)}
+                  />
+                  <button onClick={() => handleSaveCategory(categoryKey)} disabled={loading}>
+                    Salvar
+                  </button>
                 </div>
-              ))}
+              ) : (
+                <div className="category-header">
+                  <h3>{categoryKey}</h3>
+                  <div className="category-buttons">
+                    <button onClick={() => handleEditCategory(categoryKey)} disabled={loading}>
+                      Editar Categoria
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCategory(categoryKey)}
+                      className="delete-category-btn"
+                      disabled={loading}
+                    >
+                      Excluir Categoria
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {newProduct.categoryKey === categoryKey && (
+                <div className="add-product-form">
+                  <input
+                    type="text"
+                    placeholder="Nome do Produto"
+                    value={newProduct.name}
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  />
+                  <textarea
+                    placeholder="Descrição"
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Preço (R$)"
+                    value={newProduct.price}
+                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Preço de Ancoragem (R$)"
+                    value={newProduct.anchorPrice}
+                    onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    placeholder="Desconto (%)"
+                    value={newProduct.discountPercentage}
+                    readOnly
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
+                  />
+                  <button onClick={handleAddProduct} disabled={loading}>
+                    {loading ? "Adicionando..." : "Adicionar Produto"}
+                  </button>
+                </div>
+              )}
+
+              <button
+                onClick={() => setNewProduct({ ...newProduct, categoryKey })}
+                disabled={loading}
+              >
+                Adicionar Produto
+              </button>
+
+              <div className="products-grid">
+                {visibleProducts.map((product) => (
+                  <div key={product.name} className="product-item">
+                    {editProductKey === product.name ? (
+                      <div className="edit-product-form">
+                        <input
+                          type="text"
+                          value={newProduct.name}
+                          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                        />
+                        <textarea
+                          value={newProduct.description}
+                          onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                        />
+                        <input
+                          type="number"
+                          value={newProduct.price}
+                          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                        />
+                        <input
+                          type="number"
+                          value={newProduct.anchorPrice}
+                          onChange={(e) => setNewProduct({ ...newProduct, anchorPrice: e.target.value })}
+                        />
+                        <input
+                          type="number"
+                          value={newProduct.discountPercentage}
+                          readOnly
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+                        />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
+                        />
+                        <button onClick={() => handleSaveProduct(categoryKey, product.name)} disabled={loading}>
+                          Salvar Produto
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="product-preview">
+                        <div className="image-container">
+                          <img src={product.imageUrl} alt={product.name} />
+                          {product.discountPercentage > 0 && (
+                            <span className="discount-tag">{product.discountPercentage}% OFF</span>
+                          )}
+                        </div>
+                        <h4>{product.name}</h4>
+                        <p>{product.description}</p>
+                        <p>Preço: R${product.price.toFixed(2)}</p>
+                        <p>Ancoragem: R${product.anchorPrice.toFixed(2)}</p>
+                        <div className="product-buttons">
+                          <button onClick={() => handleEditProduct(categoryKey, product.name)} disabled={loading}>
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(categoryKey, product.name)}
+                            disabled={loading}
+                          >
+                            Excluir
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {productsArray.length > 2 && (
+                <button
+                  className="see-more-btn"
+                  onClick={() => toggleCategoryExpansion(categoryKey)}
+                >
+                  {isExpanded ? "Ver menos" : "Ver mais"}
+                </button>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <button onClick={handleSave} disabled={loading}>
+      <button className="save-all-btn" onClick={handleSave} disabled={loading}>
         {loading ? "Salvando..." : "Salvar Tudo"}
       </button>
     </div>

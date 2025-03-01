@@ -13,18 +13,29 @@ import "./Lojinha.css";
 const Lojinha = () => {
   const { cart, total, addToCart, removeFromCart } = useCart();
   const [isCartOpen, setCartOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState({}); // Mudado de array para objeto
   const [searchTerm, setSearchTerm] = useState("");
-  const [expandedCategories, setExpandedCategories] = useState({}); // Estado para controlar expansão por categoria
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const [loading, setLoading] = useState(true);
   const { categoria } = useParams();
 
   useEffect(() => {
-    const productsRef = doc(db, "lojinha", "products");
+    const productsRef = doc(db, "lojinha", "produtos");
 
     const unsubscribe = onSnapshot(productsRef, (docSnap) => {
       if (docSnap.exists()) {
-        setCategories(docSnap.data().categories || []);
+        const data = docSnap.data();
+        console.log("Dados carregados do Firestore:", data);
+        setCategories(data.categories || {}); // Garante que categories seja um objeto
+      } else {
+        console.log("Documento 'produtos' não encontrado em 'lojinha'");
+        setCategories({});
       }
+      setLoading(false);
+    }, (error) => {
+      console.error("Erro ao carregar produtos:", error);
+      setCategories({});
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -40,26 +51,32 @@ const Lojinha = () => {
     window.open(whatsappUrl, "_blank");
   };
 
-  // Filtrar produtos com base no termo de pesquisa
-  const filteredCategories = categories.map((category) => ({
-    ...category,
-    products: category.products.filter((product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.title.toLowerCase().includes(searchTerm.toLowerCase())
-    ),
-  })).filter((category) => 
-    categoria 
-      ? category.title.toLowerCase() === categoria.toLowerCase() 
-      : category.products.length > 0 || category.title === "Destaque"
-  );
+  // Converte o mapa de categorias em um array para renderização e filtra
+  const filteredCategories = loading || !categories
+    ? []
+    : Object.entries(categories).map(([categoryName, categoryData]) => ({
+        title: categoryName,
+        products: Object.entries(categoryData.products || {}).map(([productName, productData]) => ({
+          name: productName,
+          ...productData
+        })).filter((product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      })).filter((category) => 
+        categoria 
+          ? category.title.toLowerCase() === categoria.toLowerCase() 
+          : category.products.length > 0 || category.title === "Destaque"
+      );
 
-  // Função para alternar a expansão de uma categoria
   const toggleCategoryExpansion = (categoryIndex) => {
     setExpandedCategories((prev) => ({
       ...prev,
       [categoryIndex]: !prev[categoryIndex],
     }));
   };
+
+  if (loading) return <div>Carregando produtos...</div>;
 
   return (
     <div className="lojinhaContainer">
@@ -72,7 +89,6 @@ const Lojinha = () => {
       <BannerRotativo />
       <div className="lojaFlex">
         <main className="mainContent">
-          {/* Barra de Pesquisa */}
           <section className="search-bar">
             <input
               type="text"
@@ -85,9 +101,9 @@ const Lojinha = () => {
           <section className="categories">
             <h2>Categorias</h2>
             <div className="categoryList">
-              {categories.map((cat, index) => (
-                <Link key={index} to={`/categoria/${cat.title.toLowerCase()}`}>
-                  {cat.title}
+              {Object.keys(categories).map((cat, index) => (
+                <Link key={index} to={`/categoria/${cat.toLowerCase()}`}>
+                  {cat}
                 </Link>
               ))}
               <Link to="/lojinha">Destaque</Link>
@@ -95,64 +111,68 @@ const Lojinha = () => {
           </section>
 
           <section className="products">
-            {filteredCategories.map((category, index) => {
-              const isExpanded = expandedCategories[index];
-              const visibleProducts = isExpanded ? category.products : category.products.slice(0, 4);
+            {filteredCategories.length === 0 ? (
+              <p>Nenhum produto encontrado.</p>
+            ) : (
+              filteredCategories.map((category, index) => {
+                const isExpanded = expandedCategories[index];
+                const visibleProducts = isExpanded ? category.products : category.products.slice(0, 2);
 
-              return (
-                <div key={index} className="category-section">
-                  <h2>
-                    {categoria ? category.title : (category.title === "Destaque" ? "Produtos em Destaque" : category.title)}
-                  </h2>
-                  {category.title === "Destaque" && !categoria ? (
-                    <div className="highlightCarouselWrapper">
-                      <div className="highlightCarousel">
-                        {category.products.concat(category.products).map((product, productIndex) => (
-                          <div key={`${productIndex}-${index}`} className="productItemDestaque">
-                            <img src={product.imageUrl} alt={product.name} className="productImageDestaque" />
-                            <p className="productName">{product.name}</p>
-                            <p>R${product.price.toFixed(2)}</p>
-                            {product.description && <p className="productDescription">{product.description}</p>}
-                            <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
-                              Adicionar ao Carrinho
-                            </button>
-                          </div>
-                        ))}
+                return (
+                  <div key={index} className="category-section">
+                    <h2>
+                      {categoria ? category.title : (category.title === "Destaque" ? "Produtos em Destaque" : category.title)}
+                    </h2>
+                    {category.title === "Destaque" && !categoria ? (
+                      <div className="highlightCarouselWrapper">
+                        <div className="highlightCarousel">
+                          {category.products.concat(category.products).map((product, productIndex) => (
+                            <div key={`${productIndex}-${index}`} className="productItemDestaque">
+                              <img src={product.imageUrl} alt={product.name} className="productImageDestaque" />
+                              <p className="productName">{product.name}</p>
+                              <p>R${product.price.toFixed(2)}</p>
+                              {product.description && <p className="productDescription">{product.description}</p>}
+                              <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
+                                Adicionar ao Carrinho
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="productList">
-                      {visibleProducts.length === 0 ? (
-                        <p>Nenhum produto disponível nesta categoria.</p>
-                      ) : (
-                        visibleProducts.map((product, productIndex) => (
-                          <div key={productIndex} className="productItem">
-                            <img src={product.imageUrl} alt={product.name} className="productImage" />
-                            <p>{product.name} - R${product.price.toFixed(2)}</p>
-                            {product.description ? (
-                              <p>{product.description}</p>
-                            ) : (
-                              <p className="noDescription">Descrição não disponível</p>
-                            )}
-                            <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
-                              Adicionar ao Carrinho
-                            </button>
-                          </div>
-                        ))
-                      )}
-                      {category.products.length > 4 && (
-                        <button
-                          className="see-more-btn"
-                          onClick={() => toggleCategoryExpansion(index)}
-                        >
-                          {isExpanded ? "Ver menos" : "Ver mais"}
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    ) : (
+                      <div className="productList">
+                        {visibleProducts.length === 0 ? (
+                          <p>Nenhum produto disponível nesta categoria.</p>
+                        ) : (
+                          visibleProducts.map((product, productIndex) => (
+                            <div key={productIndex} className="productItem">
+                              <img src={product.imageUrl} alt={product.name} className="productImage" />
+                              <p>{product.name} - R${product.price.toFixed(2)}</p>
+                              {product.description ? (
+                                <p>{product.description}</p>
+                              ) : (
+                                <p className="noDescription">Descrição não disponível</p>
+                              )}
+                              <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
+                                Adicionar ao Carrinho
+                              </button>
+                            </div>
+                          ))
+                        )}
+                        {category.products.length > 2 && (
+                          <button
+                            className="see-more-btn"
+                            onClick={() => toggleCategoryExpansion(index)}
+                          >
+                            {isExpanded ? "Ver menos" : "Ver mais"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </section>
 
           <section className={`carinho_compras ${isCartOpen ? "open" : ""}`}>
