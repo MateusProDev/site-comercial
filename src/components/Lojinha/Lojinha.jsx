@@ -13,7 +13,7 @@ import "./Lojinha.css";
 const Lojinha = () => {
   const { cart, total, addToCart, removeFromCart } = useCart();
   const [isCartOpen, setCartOpen] = useState(false);
-  const [categories, setCategories] = useState({}); // Mudado de array para objeto
+  const [categories, setCategories] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState({});
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ const Lojinha = () => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         console.log("Dados carregados do Firestore:", data);
-        setCategories(data.categories || {}); // Garante que categories seja um objeto
+        setCategories(data.categories || {});
       } else {
         console.log("Documento 'produtos' não encontrado em 'lojinha'");
         setCategories({});
@@ -51,28 +51,34 @@ const Lojinha = () => {
     window.open(whatsappUrl, "_blank");
   };
 
-  // Converte o mapa de categorias em um array para renderização e filtra
+  // Filtragem corrigida para mapas
   const filteredCategories = loading || !categories
     ? []
-    : Object.entries(categories).map(([categoryName, categoryData]) => ({
-        title: categoryName,
-        products: Object.entries(categoryData.products || {}).map(([productName, productData]) => ({
-          name: productName,
-          ...productData
-        })).filter((product) =>
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      })).filter((category) => 
-        categoria 
-          ? category.title.toLowerCase() === categoria.toLowerCase() 
-          : category.products.length > 0 || category.title === "Destaque"
-      );
+    : Object.entries(categories)
+        .map(([categoryName, categoryData]) => {
+          const productsArray = Object.entries(categoryData.products || {}).map(([productName, productData]) => ({
+            name: productName,
+            ...productData,
+          }));
+          const filteredProducts = productsArray.filter((product) =>
+            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            categoryName.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          return {
+            title: categoryName,
+            products: filteredProducts,
+          };
+        })
+        .filter((category) =>
+          categoria
+            ? category.title.toLowerCase() === categoria.toLowerCase()
+            : category.products.length > 0 || category.title === "Destaque"
+        );
 
-  const toggleCategoryExpansion = (categoryIndex) => {
+  const toggleCategoryExpansion = (categoryTitle) => {
     setExpandedCategories((prev) => ({
       ...prev,
-      [categoryIndex]: !prev[categoryIndex],
+      [categoryTitle]: !prev[categoryTitle],
     }));
   };
 
@@ -114,12 +120,12 @@ const Lojinha = () => {
             {filteredCategories.length === 0 ? (
               <p>Nenhum produto encontrado.</p>
             ) : (
-              filteredCategories.map((category, index) => {
-                const isExpanded = expandedCategories[index];
+              filteredCategories.map((category) => {
+                const isExpanded = expandedCategories[category.title];
                 const visibleProducts = isExpanded ? category.products : category.products.slice(0, 2);
 
                 return (
-                  <div key={index} className="category-section">
+                  <div key={category.title} className="category-section">
                     <h2>
                       {categoria ? category.title : (category.title === "Destaque" ? "Produtos em Destaque" : category.title)}
                     </h2>
@@ -127,7 +133,7 @@ const Lojinha = () => {
                       <div className="highlightCarouselWrapper">
                         <div className="highlightCarousel">
                           {category.products.concat(category.products).map((product, productIndex) => (
-                            <div key={`${productIndex}-${index}`} className="productItemDestaque">
+                            <div key={`${productIndex}-${category.title}`} className="productItemDestaque">
                               <img src={product.imageUrl} alt={product.name} className="productImageDestaque" />
                               <p className="productName">{product.name}</p>
                               <p>R${product.price.toFixed(2)}</p>
@@ -162,7 +168,7 @@ const Lojinha = () => {
                         {category.products.length > 2 && (
                           <button
                             className="see-more-btn"
-                            onClick={() => toggleCategoryExpansion(index)}
+                            onClick={() => toggleCategoryExpansion(category.title)}
                           >
                             {isExpanded ? "Ver menos" : "Ver mais"}
                           </button>
