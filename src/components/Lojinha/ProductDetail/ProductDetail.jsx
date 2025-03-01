@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { FaShareAlt } from "react-icons/fa"; // Ícone de compartilhamento
 import { db, auth } from "../../../firebase/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useCart } from "../../../context/CartContext/CartContext";
 import "./ProductDetail.css";
 
 const ProductDetail = () => {
-  const { categoryKey, productKey } = useParams(); // Ajustado para categoryKey e productKey
+  const { categoryKey, productKey } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,14 +20,12 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        // Busca diretamente o documento com categoryKey e productKey
         const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${productKey}`);
         const productDoc = await getDoc(productDetailRef);
 
         if (productDoc.exists()) {
           setProduct(productDoc.data());
         } else {
-          // Fallback para buscar em produtos se detalhes não existirem
           const productsRef = doc(db, "lojinha", "produtos");
           const productsDoc = await getDoc(productsRef);
           if (productsDoc.exists()) {
@@ -91,8 +90,28 @@ const ProductDetail = () => {
   };
 
   const handleShareLink = () => {
-    const link = `${window.location.origin}/produto/${categoryKey}/${productKey}`;
-    navigator.clipboard.writeText(link).then(() => alert("Link copiado para a área de transferência!"));
+    // Gera o link sem espaços, substituindo por hífens
+    const safeCategoryKey = categoryKey.replace(/\s+/g, "-");
+    const safeProductKey = productKey.replace(/\s+/g, "-");
+    const link = `${window.location.origin}/produto/${safeCategoryKey}/${safeProductKey}`;
+
+    // Usa a Web Share API se disponível
+    if (navigator.share) {
+      navigator
+        .share({
+          title: product?.name || "Produto",
+          text: `Confira este produto: ${product?.name || "Produto"}`,
+          url: link,
+        })
+        .then(() => console.log("Compartilhamento bem-sucedido"))
+        .catch((error) => console.error("Erro ao compartilhar:", error));
+    } else {
+      // Fallback para copiar o link
+      navigator.clipboard
+        .writeText(link)
+        .then(() => alert("Link copiado para a área de transferência!"))
+        .catch((error) => console.error("Erro ao copiar o link:", error));
+    }
   };
 
   const handleImageChange = (direction) => {
@@ -145,8 +164,8 @@ const ProductDetail = () => {
           <button className="add-to-cart" onClick={handleAddToCart}>
             Adicionar ao Carrinho
           </button>
-          <button className="share-btn" onClick={handleShareLink}>
-            Compartilhar Link
+          <button className="share-btn" onClick={handleShareLink} title="Compartilhar">
+            <FaShareAlt /> {/* Ícone de compartilhamento */}
           </button>
         </div>
       </div>

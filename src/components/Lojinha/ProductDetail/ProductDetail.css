@@ -118,19 +118,26 @@
     background-color: #0056b3;
   }
   
-  .share-btn {
-    padding: 10px 20px;
-    background-color: #25d366;
+  /* Adicionar ao ProductDetail.css */
+.share-btn {
+    padding: 10px;
+    background-color: #25d366; /* Cor do WhatsApp como exemplo */
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
   }
   
   .share-btn:hover {
     background-color: #1ebe57;
   }
+  
+  /* Restante do CSS permanece igual */
   
   .ratings-section {
     margin-top: 30px;
