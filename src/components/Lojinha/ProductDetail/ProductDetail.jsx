@@ -16,18 +16,22 @@ const ProductDetail = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        // Corrige categoryKey e productKey para corresponder ao Firestore (substitui hífens por espaços)
         const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
         const firestoreProductKey = productKey.replace(/-/g, " ");
         const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
         const productDoc = await getDoc(productDetailRef);
 
         if (productDoc.exists()) {
-          setProduct(productDoc.data());
+          const data = productDoc.data();
+          setProduct(data);
+          if (data.variants && data.variants.length > 0) {
+            setSelectedVariant(data.variants[0]);
+          }
         } else {
           const productsRef = doc(db, "lojinha", "produtos");
           const productsDoc = await getDoc(productsRef);
@@ -36,6 +40,9 @@ const ProductDetail = () => {
             const productData = categories[firestoreCategoryKey]?.products[firestoreProductKey];
             if (productData) {
               setProduct({ name: firestoreProductKey, ...productData });
+              if (productData.variants && productData.variants.length > 0) {
+                setSelectedVariant(productData.variants[0]);
+              }
             } else {
               setError("Produto não encontrado.");
             }
@@ -54,9 +61,20 @@ const ProductDetail = () => {
     fetchProductDetails();
   }, [categoryKey, productKey]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    e.preventDefault(); // Evita comportamento padrão do link
     if (product) {
-      addToCart({ ...product, preco: product.price, nome: product.name });
+      const itemToAdd = {
+        ...product,
+        preco: product.price || 0,
+        nome: product.name,
+        variant: selectedVariant, // Inclui a variante selecionada
+      };
+      addToCart(itemToAdd); // Chama a função do contexto
+      setSuccess("Produto adicionado ao carrinho!");
+      setTimeout(() => setSuccess(""), 3000);
+    } else {
+      setError("Produto não disponível para adicionar ao carrinho.");
     }
   };
 
@@ -95,7 +113,7 @@ const ProductDetail = () => {
   };
 
   const handleShareLink = () => {
-    const link = `${window.location.origin}/produto/${categoryKey}/${productKey}`; // Já está com hífens
+    const link = `${window.location.origin}/produto/${categoryKey}/${productKey}`;
     if (navigator.share) {
       navigator
         .share({
@@ -120,6 +138,10 @@ const ProductDetail = () => {
     } else {
       setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     }
+  };
+
+  const handleVariantChange = (variant) => {
+    setSelectedVariant(variant);
   };
 
   if (loading) return <div>Carregando...</div>;
@@ -152,14 +174,35 @@ const ProductDetail = () => {
         </div>
         <div className="details">
           <p>{product?.description || "Sem descrição disponível"}</p>
-          <p>{product?.details || "Sem detalhes adicionais"}</p>
           <div className="price-info">
-            <span className="anchor-price">R${product?.anchorPrice.toFixed(2)}</span>
-            <span className="current-price">R${product?.price.toFixed(2)}</span>
+            <span className="anchor-price">R${(product?.anchorPrice || 0).toFixed(2)}</span>
+            <span className="current-price">R${(product?.price || 0).toFixed(2)}</span>
             {product?.discountPercentage > 0 && (
               <span className="discount">{product.discountPercentage}% OFF</span>
             )}
           </div>
+          {product?.variants && product.variants.length > 0 && (
+            <div className="variants-section">
+              <h3>Escolha uma variante:</h3>
+              <div className="variant-options">
+                {product.variants.map((variant, index) => (
+                  <label key={index} className="variant-label">
+                    <input
+                      type="radio"
+                      name="variant"
+                      checked={
+                        selectedVariant &&
+                        selectedVariant.color === variant.color &&
+                        selectedVariant.size === variant.size
+                      }
+                      onChange={() => handleVariantChange(variant)}
+                    />
+                    <span>Cor: {variant.color}, Tamanho: {variant.size}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
           <button className="add-to-cart" onClick={handleAddToCart}>
             Adicionar ao Carrinho
           </button>

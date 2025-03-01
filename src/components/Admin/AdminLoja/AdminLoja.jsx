@@ -14,20 +14,8 @@ const AdminLoja = () => {
     navigate("/admin/banner-admin"); // Rota correta
   };
 
-  const goToEditDestaques = () => {
-    // Placeholder: ainda não existe no App.jsx
-    navigate("/admin/edit-destaques"); 
-    // Se quiser desativar até criar: alert("Rota de editar destaques ainda não implementada.");
-  };
-
   const goToEditProdutos = () => {
     navigate("/admin/edit-products"); // Rota correta ajustada
-  };
-
-  const goToEditCategorias = () => {
-    // Placeholder: ainda não existe no App.jsx
-    navigate("/admin/edit-categorias");
-    // Se quiser desativar até criar: alert("Rota de editar categorias ainda não implementada.");
   };
 
   const goToHome = () => {
@@ -50,9 +38,7 @@ const AdminLoja = () => {
       <div className="admin-loja-actions">
         <button onClick={goToEditLojinhaHeader}>Editar Cabeçalho</button>
         <button onClick={goToBannerAdmin}>Editar Banner</button>
-        <button onClick={goToEditDestaques}>Editar Destaques</button>
         <button onClick={goToEditProdutos}>Editar Produtos</button>
-        <button onClick={goToEditCategorias}>Editar Categorias</button>
         <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 

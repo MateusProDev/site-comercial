@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FiShoppingBag } from "react-icons/fi";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaHome, FaList } from "react-icons/fa";
 import { db } from "../../firebase/firebaseConfig";
 import { doc, onSnapshot } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
@@ -44,7 +44,12 @@ const Lojinha = () => {
   const handleCartToggle = () => setCartOpen(!isCartOpen);
 
   const handleFinalizePurchase = () => {
-    const message = cart.map((item) => `${item.nome} - R$${(item.preco || item.price).toFixed(2)}`).join("\n");
+    const message = cart
+      .map((item) => {
+        const variantDetails = item.variant ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})` : "";
+        return `${item.nome}${variantDetails} - R$${(item.preco || item.price || 0).toFixed(2)}`;
+      })
+      .join("\n");
     const totalValue = total.toFixed(2);
     const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\nPreencha as informações:\n\nNome:\nEndereço:\nForma de pagamento:\nPix, Débito, Crédito`;
     const whatsappUrl = `https://api.whatsapp.com/send?phone=5585991470709&text=${encodeURIComponent(whatsappMessage)}`;
@@ -81,7 +86,7 @@ const Lojinha = () => {
     }));
   };
 
-  if (loading) return <div>Carregando produtos...</div>;
+  if (loading) return <div className="loading-spinner"></div>; // Círculo giratório
 
   return (
     <div className="lojinhaContainer">
@@ -111,7 +116,6 @@ const Lojinha = () => {
                   {cat}
                 </Link>
               ))}
-              <Link to="/lojinha">Destaque</Link>
             </div>
           </section>
 
@@ -134,12 +138,18 @@ const Lojinha = () => {
                           {category.products.concat(category.products).map((product, productIndex) => (
                             <div key={`${productIndex}-${category.title}`} className="productItemDestaque">
                               <img src={product.imageUrl} alt={product.name} className="productImageDestaque" />
+                              {product.discountPercentage > 0 && (
+                                <span className="discount-tag">{product.discountPercentage}% OFF</span>
+                              )}
                               <p className="productName">{product.name}</p>
-                              <p>R${product.price.toFixed(2)}</p>
+                              <p>R${(product.price || 0).toFixed(2)}</p>
                               {product.description && <p className="productDescription">{product.description}</p>}
-                              <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
-                                Adicionar ao Carrinho
-                              </button>
+                              <Link
+                                to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
+                                className="view-product-btn"
+                              >
+                                Mais Detalhes
+                              </Link>
                             </div>
                           ))}
                         </div>
@@ -152,20 +162,21 @@ const Lojinha = () => {
                           visibleProducts.map((product) => (
                             <Link
                               key={product.name}
-                              to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`} // Links ajustados
+                              to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
                               className="product-item-link"
                             >
                               <div className="productItem">
                                 <img src={product.imageUrl} alt={product.name} className="productImage" />
-                                <p>{product.name} - R${product.price.toFixed(2)}</p>
+                                {product.discountPercentage > 0 && (
+                                  <span className="discount-tag">{product.discountPercentage}% OFF</span>
+                                )}
+                                <p>{product.name} - R${(product.price || 0).toFixed(2)}</p>
                                 {product.description ? (
                                   <p>{product.description}</p>
                                 ) : (
                                   <p className="noDescription">Descrição não disponível</p>
                                 )}
-                                <button onClick={() => addToCart({ ...product, preco: product.price, nome: product.name })}>
-                                  Adicionar ao Carrinho
-                                </button>
+                                <button className="view-product-btn">Mais Detalhes</button>
                               </div>
                             </Link>
                           ))
@@ -188,13 +199,25 @@ const Lojinha = () => {
 
           <section className={`carinho_compras ${isCartOpen ? "open" : ""}`}>
             <h2 id="titleCar">Sacola</h2>
+            <div className="cart-navigation">
+              <Link to="/lojinha" className="cart-nav-link">
+                <FaHome /> Home
+              </Link>
+              <Link to="/lojinha/produtos" className="cart-nav-link">
+                <FaList /> Categorias
+              </Link>
+            </div>
             <div className="carrinhoItens">
               {cart.length === 0 ? (
                 <p>Sua sacola está vazia</p>
               ) : (
                 cart.map((item, index) => (
                   <div key={index} className="cartItem">
-                    <span className="carTl">{item.nome} - R$${(item.preco || item.price).toFixed(2)}</span>
+                    <span className="carTl">
+                      {item.nome}
+                      {item.variant ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})` : ""} - R$
+                      {(item.preco || item.price || 0).toFixed(2)}
+                    </span>
                     <button className="removeItem" onClick={() => removeFromCart(index)}>X</button>
                   </div>
                 ))

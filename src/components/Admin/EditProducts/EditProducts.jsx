@@ -10,7 +10,7 @@ const EditProducts = () => {
   const [categories, setCategories] = useState({});
   const [newCategoryTitle, setNewCategoryTitle] = useState("");
   const [newProduct, setNewProduct] = useState({
-    categoryKey: null, // Mudado de categoryIndex para categoryKey
+    categoryKey: null,
     name: "",
     description: "",
     price: "",
@@ -18,7 +18,9 @@ const EditProducts = () => {
     discountPercentage: "",
     image: null,
     additionalImages: [],
+    variants: [],
   });
+  const [newVariant, setNewVariant] = useState({ color: "", size: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -38,6 +40,7 @@ const EditProducts = () => {
         setError("Erro ao carregar dados.");
         console.error("Erro ao buscar dados:", error);
       }
+      setLoading(false); // Garante que loading seja false após tentativa
     };
     fetchCategories();
   }, []);
@@ -73,16 +76,35 @@ const EditProducts = () => {
     }
     setCategories((prev) => ({
       ...prev,
-      [newCategoryTitle]: { products: {} }
+      [newCategoryTitle]: { products: {} },
     }));
     setNewCategoryTitle("");
   };
 
-  const handleAddProduct = async () => {
-    const { name, description, price, anchorPrice, image, additionalImages, categoryKey } = newProduct;
+  const handleAddVariant = () => {
+    if (!newVariant.color || !newVariant.size) {
+      setError("Preencha a cor e o tamanho da variante!");
+      return;
+    }
+    setNewProduct((prev) => ({
+      ...prev,
+      variants: [...prev.variants, { ...newVariant }],
+    }));
+    setNewVariant({ color: "", size: "" });
+  };
 
-    if (!name || !description || !price || !anchorPrice || !image) {
-      setError("Preencha todos os campos obrigatórios do produto!");
+  const handleRemoveVariant = (index) => {
+    setNewProduct((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddProduct = async () => {
+    const { name, description, price, anchorPrice, image, additionalImages, categoryKey, variants } = newProduct;
+
+    if (!name || !description || !price || !anchorPrice || !image || !categoryKey) {
+      setError("Preencha todos os campos obrigatórios do produto e selecione uma categoria!");
       return;
     }
 
@@ -95,12 +117,14 @@ const EditProducts = () => {
       const updatedCategories = { ...categories };
       const newProductData = {
         description,
-        price: parseFloat(price),
-        anchorPrice: parseFloat(anchorPrice),
+        price: parseFloat(price) || 0, // Garante que price seja número
+        anchorPrice: parseFloat(anchorPrice) || 0, // Garante que anchorPrice seja número
         discountPercentage: calculateDiscount(parseFloat(price), parseFloat(anchorPrice)),
         imageUrl,
         additionalImages: additionalImageUrls.filter(Boolean),
+        variants,
       };
+
       updatedCategories[categoryKey].products[name] = newProductData;
 
       try {
@@ -116,7 +140,17 @@ const EditProducts = () => {
         });
 
         setCategories(updatedCategories);
-        setNewProduct({ categoryKey: null, name: "", description: "", price: "", anchorPrice: "", discountPercentage: "", image: null, additionalImages: [] });
+        setNewProduct({
+          categoryKey: null,
+          name: "",
+          description: "",
+          price: "",
+          anchorPrice: "",
+          discountPercentage: "",
+          image: null,
+          additionalImages: [],
+          variants: [],
+        });
         setSuccess("Produto e detalhes adicionados com sucesso!");
       } catch (error) {
         setError("Erro ao salvar o produto ou detalhes.");
@@ -166,19 +200,36 @@ const EditProducts = () => {
 
     updatedCategories[categoryKey].products[newProduct.name] = {
       description: newProduct.description,
-      price: parseFloat(newProduct.price),
-      anchorPrice: parseFloat(newProduct.anchorPrice),
+      price: parseFloat(newProduct.price) || 0, // Garante que price seja número
+      anchorPrice: parseFloat(newProduct.anchorPrice) || 0, // Garante que anchorPrice seja número
       discountPercentage: calculateDiscount(parseFloat(newProduct.price), parseFloat(newProduct.anchorPrice)),
       imageUrl: imageUrl || product.imageUrl,
-      additionalImages: additionalImageUrls.filter(Boolean).length > 0 ? additionalImageUrls : product.additionalImages || [],
+      additionalImages:
+        additionalImageUrls.filter(Boolean).length > 0 ? additionalImageUrls : product.additionalImages || [],
+      variants: newProduct.variants,
     };
     if (newProduct.name !== productKey) {
       delete updatedCategories[categoryKey].products[productKey];
     }
 
-    setCategories(updatedCategories);
-    setEditProductKey(null);
-    setSuccess("Produto atualizado com sucesso!");
+    try {
+      await setDoc(doc(db, "lojinha", "produtos"), { categories: updatedCategories });
+      const productDetailRef = doc(db, "lojinha", `product-details-${categoryKey}-${newProduct.name}`);
+      await setDoc(productDetailRef, {
+        ...updatedCategories[categoryKey].products[newProduct.name],
+        name: newProduct.name,
+        category: categoryKey,
+        productKey: newProduct.name,
+        details: "Detalhes adicionais podem ser editados aqui.",
+        ratings: product.ratings || [],
+      });
+      setCategories(updatedCategories);
+      setEditProductKey(null);
+      setSuccess("Produto atualizado com sucesso!");
+    } catch (error) {
+      setError("Erro ao atualizar o produto.");
+      console.error(error);
+    }
   };
 
   const handleEditCategory = (categoryKey) => {
@@ -190,12 +241,13 @@ const EditProducts = () => {
     const product = categories[categoryKey].products[productKey];
     setNewProduct({
       name: productKey,
-      description: product.description,
-      price: product.price.toString(),
-      anchorPrice: product.anchorPrice.toString(),
-      discountPercentage: product.discountPercentage.toString(),
-      image: product.imageUrl,
+      description: product.description || "",
+      price: product.price ? product.price.toString() : "", // Verifica existência
+      anchorPrice: product.anchorPrice ? product.anchorPrice.toString() : "", // Verifica existência
+      discountPercentage: product.discountPercentage ? product.discountPercentage.toString() : "",
+      image: product.imageUrl || null,
       additionalImages: product.additionalImages || [],
+      variants: product.variants || [],
       categoryKey,
     });
     setEditProductKey(productKey);
@@ -209,6 +261,7 @@ const EditProducts = () => {
       setTimeout(() => navigate("/admin/dashboard"), 2000);
     } catch (error) {
       setError("Erro ao salvar as alterações.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -220,6 +273,8 @@ const EditProducts = () => {
       [categoryKey]: !prev[categoryKey],
     }));
   };
+
+  if (loading) return <div>Carregando...</div>;
 
   return (
     <div className="edit-products">
@@ -242,7 +297,10 @@ const EditProducts = () => {
       <div className="categories-list">
         {Object.entries(categories).map(([categoryKey, categoryData], index) => {
           const isExpanded = expandedCategories[categoryKey];
-          const productsArray = Object.entries(categoryData.products || {}).map(([name, data]) => ({ name, ...data }));
+          const productsArray = Object.entries(categoryData.products || {}).map(([name, data]) => ({
+            name,
+            ...data,
+          }));
           const visibleProducts = isExpanded ? productsArray : productsArray.slice(0, 2);
 
           return (
@@ -318,6 +376,40 @@ const EditProducts = () => {
                     multiple
                     onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
                   />
+                  <div className="variant-form">
+                    <h4>Variantes</h4>
+                    <input
+                      type="text"
+                      placeholder="Cor"
+                      value={newVariant.color}
+                      onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Tamanho"
+                      value={newVariant.size}
+                      onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                    />
+                    <button onClick={handleAddVariant} disabled={loading}>
+                      Adicionar Variante
+                    </button>
+                    <div className="variants-list">
+                      {newProduct.variants.map((variant, index) => (
+                        <div key={index} className="variant-item">
+                          <span>
+                            Cor: {variant.color}, Tamanho: {variant.size}
+                          </span>
+                          <button
+                            onClick={() => handleRemoveVariant(index)}
+                            disabled={loading}
+                            className="remove-variant-btn"
+                          >
+                            Remover
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <button onClick={handleAddProduct} disabled={loading}>
                     {loading ? "Adicionando..." : "Adicionar Produto"}
                   </button>
@@ -371,6 +463,40 @@ const EditProducts = () => {
                           multiple
                           onChange={(e) => setNewProduct({ ...newProduct, additionalImages: Array.from(e.target.files) })}
                         />
+                        <div className="variant-form">
+                          <h4>Variantes</h4>
+                          <input
+                            type="text"
+                            placeholder="Cor"
+                            value={newVariant.color}
+                            onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                          />
+                          <input
+                            type="text"
+                            placeholder="Tamanho"
+                            value={newVariant.size}
+                            onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                          />
+                          <button onClick={handleAddVariant} disabled={loading}>
+                            Adicionar Variante
+                          </button>
+                          <div className="variants-list">
+                            {newProduct.variants.map((variant, index) => (
+                              <div key={index} className="variant-item">
+                                <span>
+                                  Cor: {variant.color}, Tamanho: {variant.size}
+                                </span>
+                                <button
+                                  onClick={() => handleRemoveVariant(index)}
+                                  disabled={loading}
+                                  className="remove-variant-btn"
+                                >
+                                  Remover
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                         <button onClick={() => handleSaveProduct(categoryKey, product.name)} disabled={loading}>
                           Salvar Produto
                         </button>
@@ -384,9 +510,21 @@ const EditProducts = () => {
                           )}
                         </div>
                         <h4>{product.name}</h4>
-                        <p>{product.description}</p>
-                        <p>Preço: R${product.price.toFixed(2)}</p>
-                        <p>Ancoragem: R${product.anchorPrice.toFixed(2)}</p>
+                        <p>{product.description || "Sem descrição"}</p>
+                        <p>Preço: R${(product.price || 0).toFixed(2)}</p> {/* Verificação de price */}
+                        <p>Ancoragem: R${(product.anchorPrice || 0).toFixed(2)}</p> {/* Verificação de anchorPrice */}
+                        {product.variants && product.variants.length > 0 && (
+                          <div className="variants-display">
+                            <h5>Variantes:</h5>
+                            <ul>
+                              {product.variants.map((variant, idx) => (
+                                <li key={idx}>
+                                  Cor: {variant.color}, Tamanho: {variant.size}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                         <div className="product-buttons">
                           <button onClick={() => handleEditProduct(categoryKey, product.name)} disabled={loading}>
                             Editar

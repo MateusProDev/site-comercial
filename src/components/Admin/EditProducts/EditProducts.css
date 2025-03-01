@@ -352,3 +352,78 @@
       bottom: 10px;
     }
   }
+  /* Adicionar ao EditProducts.css */
+.variant-form {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+  }
+  
+  .variant-form h4 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+  }
+  
+  .variant-form input {
+    width: calc(50% - 10px);
+    margin: 5px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .variant-form button {
+    margin: 5px;
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .variant-form button:hover {
+    background-color: #218838;
+  }
+  
+  .variants-list {
+    margin-top: 10px;
+  }
+  
+  .variant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .remove-variant-btn {
+    background-color: #dc3545;
+    padding: 4px 8px;
+  }
+  
+  .remove-variant-btn:hover {
+    background-color: #c82333;
+  }
+  
+  .variants-display {
+    margin-top: 10px;
+  }
+  
+  .variants-display h5 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+  }
+  
+  .variants-display ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .variants-display li {
+    font-size: 12px;
+    color: #555;
+  }
