@@ -41,12 +41,14 @@
   font-size: 14px;
   font-weight: bold;
 }
-.lojaFlex{
+
+.lojaFlex {
   width: 70vw;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 /* Conteúdo principal */
 .mainContent {
   flex: 1;
@@ -67,6 +69,28 @@
   color: #333;
   text-align: left;
   margin-bottom: 20px;
+}
+
+/* Barra de Pesquisa */
+.search-bar {
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px; /* Mantém o estilo arredondado */
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.search-bar input:focus {
+  border-color: #007bff; /* Cor de foco consistente com os botões */
+  outline: none;
 }
 
 /* Categorias - Scroll Horizontal */
@@ -121,10 +145,16 @@
   margin-bottom: 20px;
 }
 
-.products h2 {
+/* Vitrines das Categorias */
+.category-section {
+  margin-bottom: 30px;
+}
+
+.category-section h2 {
   font-size: 22px;
   color: #333;
   margin-bottom: 15px;
+  text-align: left;
 }
 
 /* Carrossel de Destaques - Infinito */
@@ -175,6 +205,7 @@
   margin: 5px 0;
   text-align: left;
 }
+
 .productName p {
   text-align: left;
 }
@@ -222,6 +253,9 @@
   margin: 5px 0;
   padding: 5px;
   text-align: left;
+  word-wrap: break-word; /* Garante que o texto quebre a linha quando necessário */
+  white-space: normal; /* Permite que o texto quebre linhas normalmente */
+  overflow-wrap: break-word; /* Para navegadores que não suportam word-wrap */
 }
 
 .productItem button,
@@ -339,7 +373,7 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .lojaFlex{
+  .lojaFlex {
     width: 100vw;
   }
   .mainContent {
@@ -366,7 +400,7 @@
   .productItemDestaque {
     width: 200px;
     height: auto;
-  text-align: left;
+    text-align: left;
   }
 
   .productImageDestaque {
@@ -396,7 +430,7 @@
 }
 
 @media (max-width: 480px) {
-  .lojaFlex{
+  .lojaFlex {
     width: 100vw;
   }
   .mainContent h1 {
@@ -416,8 +450,7 @@
   .productItemDestaque {
     width: 150px;
     height: auto;
-  text-align: left;
-
+    text-align: left;
   }
 
   .productImageDestaque {
@@ -462,6 +495,7 @@
     width: 70%;
   }
 }
+
 /* Ajuste para a descrição do produto */
 .productItem p,
 .productItemDestaque p {
@@ -473,6 +507,7 @@
   white-space: normal; /* Permite que o texto quebre linhas normalmente */
   overflow-wrap: break-word; /* Para navegadores que não suportam word-wrap */
 }
+
 /* Container principal */
 .admin-loja-container {
   padding: 20px;
@@ -600,7 +635,8 @@
   color: green;
   font-weight: bold;
 }
-/* button admin loja  */
+
+/* Button admin loja */
 .cartLoginAdmin {
   position: absolute;
   bottom: 60px;
@@ -625,4 +661,33 @@
 .adminLink svg {
   font-size: 30px; /* Tamanho do ícone */
   margin-right: 8px;
+}
+/* Botão Ver mais/Ver menos */
+.see-more-btn {
+  display: block;
+  margin: 15px auto 0;
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.2s ease-in-out;
+}
+
+.see-more-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+/* Container principal */
+.admin-loja-container {
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+/* Estilo do formulário */
+.admin-form {
+  margin-bottom: 40px;
 }

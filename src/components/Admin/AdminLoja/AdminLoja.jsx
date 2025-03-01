@@ -7,32 +7,40 @@ const AdminLoja = () => {
   const navigate = useNavigate();
 
   const goToEditLojinhaHeader = () => {
-    navigate("/loja/admin/edit-lojinhaHeader");
+    navigate("/loja/admin/edit-lojinhaHeader"); // Rota correta
   };
 
   const goToBannerAdmin = () => {
-    navigate("/admin/banner-admin");
+    navigate("/admin/banner-admin"); // Rota correta
   };
 
   const goToEditDestaques = () => {
-    navigate("/admin/edit-destaques");
+    // Placeholder: ainda não existe no App.jsx
+    navigate("/admin/edit-destaques"); 
+    // Se quiser desativar até criar: alert("Rota de editar destaques ainda não implementada.");
   };
 
   const goToEditProdutos = () => {
-    navigate("/admin/edit-produtos");
+    navigate("/admin/edit-products"); // Rota correta ajustada
   };
 
   const goToEditCategorias = () => {
+    // Placeholder: ainda não existe no App.jsx
     navigate("/admin/edit-categorias");
+    // Se quiser desativar até criar: alert("Rota de editar categorias ainda não implementada.");
   };
 
   const goToHome = () => {
-    navigate("/lojinha");
+    navigate("/lojinha"); // Rota correta
   };  
 
   const handleLogout = async () => {
-    await auth.signOut();
-    navigate("/loja/login");
+    try {
+      await auth.signOut();
+      navigate("/loja/login"); // Rota correta
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
   };
 
   return (

@@ -1,0 +1,165 @@
+.edit-products {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .edit-products h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .error {
+    color: red;
+    margin-bottom: 10px;
+  }
+  
+  .success {
+    color: green;
+    margin-bottom: 10px;
+  }
+  
+  .add-category-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .add-category-form input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .add-category-form button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .add-category-form button:hover {
+    background-color: #0056b3;
+  }
+  
+  .categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .category {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #fff;
+  }
+  
+  .category h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .category button {
+    padding: 6px 12px;
+    margin-right: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .category button:hover {
+    background-color: #0056b3;
+  }
+  
+  .delete-category-btn {
+    background-color: #ff0000;
+  }
+  
+  .delete-category-btn:hover {
+    background-color: #cc0000;
+  }
+  
+  .add-product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .add-product-form input,
+  .add-product-form textarea {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .add-product-form textarea {
+    height: 80px;
+  }
+  
+  .add-product-form button {
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .add-product-form button:hover {
+    background-color: #218838;
+  }
+  
+  .products-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+  }
+  
+  .product {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    width: 300px;
+  }
+  
+  .product img {
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  .product h4 {
+    font-size: 16px;
+    margin: 10px 0;
+  }
+  
+  .product p {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .product button {
+    margin-top: 10px;
+  }
+  
+  .edit-products > button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #25d366;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .edit-products > button:hover {
+    background-color: #1ebe57;
+  }
