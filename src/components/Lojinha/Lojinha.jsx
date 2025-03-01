@@ -216,4 +216,4 @@ const Lojinha = () => {
   );
 };
 
-export default Lojinha;
+export default Lojinha; 
