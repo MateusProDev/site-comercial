@@ -5,13 +5,12 @@ import "./Carousel.css";
 
 const Carousel = () => {
   const [carouselData, setCarouselData] = useState({
-    sectionTitle: "", // Título da seção
-    images: [], // Lista de imagens com títulos
+    sectionTitle: "",
+    images: [],
   });
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef(null);
 
-  // Busca os dados do carrossel no Firestore
   useEffect(() => {
     const fetchCarouselData = async () => {
       try {
@@ -19,7 +18,7 @@ const Carousel = () => {
         const carouselDoc = await getDoc(carouselRef);
 
         if (carouselDoc.exists()) {
-          setCarouselData(carouselDoc.data()); // Atualiza o estado com os dados do Firestore
+          setCarouselData(carouselDoc.data());
         } else {
           console.log("Carrossel não encontrado!");
         }
@@ -31,12 +30,11 @@ const Carousel = () => {
     fetchCarouselData();
   }, []);
 
-  // Inicia o carrossel automático
   useEffect(() => {
     if (carouselData.images.length > 1) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % carouselData.images.length);
-      }, 5000); // Muda a imagem a cada 5 segundos
+      }, 5000);
     }
 
     return () => {
@@ -46,12 +44,9 @@ const Carousel = () => {
 
   return (
     <div className="carousel-section">
-      {/* Título da seção */}
       {carouselData.sectionTitle && (
         <h2 className="section-title">{carouselData.sectionTitle}</h2>
       )}
-
-      {/* Carrossel de imagens */}
       <div className="carousel">
         {carouselData.images.map((image, index) => (
           <div

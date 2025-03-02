@@ -77,22 +77,23 @@
 @media (min-width: 1200px) {
   .banner {
     height: 100vh;
-    padding: 60px 40px;
+    padding: 10px 40px;
   }
 
   .banner-image {
-    max-width: 1000px;
-    height: 70vh;
+    max-width: 370px;
+    height: 50vh !important;
     margin-bottom: 40px;
+    padding: 0 20px;
   }
 
   .banner h1 {
-    font-size: 72px;
+    font-size: 40px;
     margin-bottom: 30px;
   }
 
   .banner p {
-    font-size: 32px;
+    font-size: 22px;
     max-width: 1000px;
   }
 
@@ -103,17 +104,26 @@
 
 /* Telas Médias (768px - 1199px) */
 @media (max-width: 1199px) {
+  .banner {
+    height: 100vh;
+    padding: 10px 40px;
+  }
+
   .banner-image {
-    max-width: 600px;
-    height: 50vh;
+    max-width: 300px;
+    height: 50vh !important;
+    margin-bottom: 40px;
+    padding: 0 20px;
   }
 
   .banner h1 {
-    font-size: 48px;
+    font-size: 30px;
+    margin-bottom: 30px;
   }
 
   .banner p {
-    font-size: 24px;
+    font-size: 18px;
+    max-width: 1000px;
   }
 }
 
@@ -121,12 +131,12 @@
 @media (max-width: 767px) {
   .banner {
     height: 80vh;
-    padding: 30px 10px;
+    padding: 20px 0px;
   }
 
   .banner-image {
-    max-width: 100%;
-    height: 40vh;
+    max-width: 47vh;
+    height: 50vh;
     margin-bottom: 20px;
   }
 
@@ -136,7 +146,7 @@
   }
 
   .banner p {
-    font-size: 18px;
+    font-size: 15px;
     padding: 0 15px;
   }
 }
