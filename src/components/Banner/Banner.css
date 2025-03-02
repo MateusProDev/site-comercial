@@ -38,7 +38,7 @@
 
 /* Imagem principal */
 .banner-image {
-  width: 85% !important;
+  width: 95% !important;
   max-width: 800px;
   height: 45vh !important;
   object-fit: contain;
@@ -47,7 +47,7 @@
   position: relative;
   z-index: 2;
   margin-bottom: 30px;
-  padding: 20px;
+  padding: 5px;
   transition: transform 0.3s ease;
 }
 
@@ -120,8 +120,8 @@
 /* Telas Pequenas (Até 767px) */
 @media (max-width: 767px) {
   .banner {
-    height: 90vh;
-    padding: 30px 15px;
+    height: 80vh;
+    padding: 30px 10px;
   }
 
   .banner-image {

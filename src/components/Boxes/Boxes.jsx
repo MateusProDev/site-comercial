@@ -4,15 +4,14 @@ import { doc, onSnapshot } from "firebase/firestore";
 import "./Boxes.css";
 
 const Boxes = () => {
-  const [sections, setSections] = useState([]); // Lista de seções com boxes
+  const [sections, setSections] = useState([]);
 
-  // Busca as seções e boxes ao carregar o componente
   useEffect(() => {
     const boxesRef = doc(db, "content", "boxes");
 
     const unsubscribe = onSnapshot(boxesRef, (docSnap) => {
       if (docSnap.exists()) {
-        setSections(docSnap.data().sections || []); // Atualiza o estado com as seções
+        setSections(docSnap.data().sections || []);
       } else {
         console.log("Seções não encontradas!");
       }
@@ -22,22 +21,20 @@ const Boxes = () => {
   }, []);
 
   return (
-    <div className="boxes-container">
+    <div className="boxes-wrapper">
       {sections.map((section, sectionIndex) => (
-        <div key={sectionIndex} className="section">
-          <h2 className="section-title">{section.title}</h2>
-          <div className="section-flex">
-          <div className="boxes">
+        <section key={sectionIndex} className="boxes-section">
+          <h2 className="boxes-section-title">{section.title}</h2>
+          <div className="boxes-grid">
             {section.boxes.map((box, boxIndex) => (
-              <div key={boxIndex} className="box">
-                <img src={box.imageUrl} alt={box.title} />
-                <h3>{box.title}</h3>
-                <p>{box.content}</p>
-              </div>
+              <article key={boxIndex} className="box-item">
+                <img src={box.imageUrl} alt={box.title} className="box-image" />
+                <h3 className="box-title">{box.title}</h3>
+                <p className="box-content">{box.content}</p>
+              </article>
             ))}
           </div>
-          </div>
-        </div>
+        </section>
       ))}
     </div>
   );
