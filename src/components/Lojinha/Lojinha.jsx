@@ -56,6 +56,22 @@ const Lojinha = () => {
     window.open(whatsappUrl, "_blank");
   };
 
+  const getInitialVisibleCount = () => {
+    if (window.innerWidth >= 1200) return 5; // 5 produtos em telas grandes
+    if (window.innerWidth >= 768) return 3; // 3 produtos em telas médias
+    return 2; // 2 produtos em telas pequenas
+  };
+
+  const [initialVisibleCount, setInitialVisibleCount] = useState(getInitialVisibleCount());
+
+  useEffect(() => {
+    const handleResize = () => {
+      setInitialVisibleCount(getInitialVisibleCount());
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const filteredCategories = loading || !categories
     ? []
     : Object.entries(categories)
@@ -86,7 +102,7 @@ const Lojinha = () => {
     }));
   };
 
-  if (loading) return <div className="loading-spinner"></div>; // Círculo giratório
+  if (loading) return <div className="loading-spinner"></div>;
 
   return (
     <div className="lojinhaContainer">
@@ -125,7 +141,7 @@ const Lojinha = () => {
             ) : (
               filteredCategories.map((category) => {
                 const isExpanded = expandedCategories[category.title];
-                const visibleProducts = isExpanded ? category.products : category.products.slice(0, 2);
+                const visibleProducts = isExpanded ? category.products : category.products.slice(0, initialVisibleCount);
 
                 return (
                   <div key={category.title} className="category-section">
@@ -181,7 +197,7 @@ const Lojinha = () => {
                             </Link>
                           ))
                         )}
-                        {category.products.length > 2 && (
+                        {category.products.length > initialVisibleCount && (
                           <button
                             className="see-more-btn"
                             onClick={() => toggleCategoryExpansion(category.title)}
