@@ -37,12 +37,12 @@ const EditBanner = () => {
   }, []);
 
   const handleImageUpload = async (file, field) => {
-    if (!file || loading) return;  // Impede o upload se já estiver em andamento
+    if (!file || loading) return;
     setLoading(true);
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "qc7tkpck"); // Substitua pelo seu upload preset
+    formData.append("upload_preset", "qc7tkpck");
     formData.append("cloud_name", "doeiv6m4h");
 
     try {
@@ -75,7 +75,7 @@ const EditBanner = () => {
   };
 
   return (
-    <div className="edit-banner">
+    <div className="edit-banner-panel">
       <h2>Editar Banner</h2>
 
       {error && <p className="error">{error}</p>}
@@ -102,7 +102,7 @@ const EditBanner = () => {
           type="file"
           accept="image/*"
           onChange={(e) => handleImageUpload(e.target.files[0], "imageUrl")}
-          disabled={loading} // Desabilita o input durante o upload
+          disabled={loading}
         />
         {bannerData.imageUrl && <img src={bannerData.imageUrl} alt="Prévia" className="banner-preview" />}
 
@@ -111,11 +111,13 @@ const EditBanner = () => {
           type="file"
           accept="image/*"
           onChange={(e) => handleImageUpload(e.target.files[0], "bgUrl")}
-          disabled={loading} // Desabilita o input durante o upload
+          disabled={loading}
         />
         {bannerData.bgUrl && <img src={bannerData.bgUrl} alt="Prévia" className="banner-preview" />}
 
-        <button type="submit" disabled={loading}>{loading ? "Salvando..." : "Salvar Banner"}</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Salvando..." : "Salvar Banner"}
+        </button>
       </form>
     </div>
   );

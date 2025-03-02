@@ -38,15 +38,16 @@
 
 /* Imagem principal */
 .banner-image {
-  width: auto;
+  width: 85% !important;
   max-width: 800px;
-  height: 60vh;
+  height: 45vh !important;
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
   position: relative;
   z-index: 2;
   margin-bottom: 30px;
+  padding: 20px;
   transition: transform 0.3s ease;
 }
 
@@ -68,7 +69,7 @@
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
   position: relative;
   z-index: 2;
-  line-height: 1.4;
+  line-height: 0,7;
   margin: 0 20px;
 }
 
