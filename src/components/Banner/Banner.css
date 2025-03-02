@@ -40,14 +40,14 @@
 .banner-image {
   width: 95% !important;
   max-width: 800px;
-  height: 45vh !important;
+  height: 50vh !important;
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
   position: relative;
   z-index: 2;
   margin-bottom: 30px;
-  padding: 5px;
+  padding: 10px 10px;
   transition: transform 0.3s ease;
 }
 
