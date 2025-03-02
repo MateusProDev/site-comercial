@@ -57,9 +57,9 @@ const Lojinha = () => {
   };
 
   const getInitialVisibleCount = () => {
-    if (window.innerWidth >= 1200) return 5; // 5 produtos em telas grandes
-    if (window.innerWidth >= 768) return 3; // 3 produtos em telas médias
-    return 2; // 2 produtos em telas pequenas
+    if (window.innerWidth >= 1200) return 5;
+    if (window.innerWidth >= 768) return 3;
+    return 2;
   };
 
   const [initialVisibleCount, setInitialVisibleCount] = useState(getInitialVisibleCount());
@@ -100,6 +100,14 @@ const Lojinha = () => {
       ...prev,
       [categoryTitle]: !prev[categoryTitle],
     }));
+  };
+
+  // Função para calcular o preço original se não estiver disponível
+  const calculateOriginalPrice = (price, discountPercentage) => {
+    if (discountPercentage > 0) {
+      return (price / (1 - discountPercentage / 100)).toFixed(2);
+    }
+    return price.toFixed(2);
   };
 
   if (loading) return <div className="loading-spinner"></div>;
@@ -158,7 +166,14 @@ const Lojinha = () => {
                                 <span className="discount-tag">{product.discountPercentage}% OFF</span>
                               )}
                               <p className="productName">{product.name}</p>
-                              <p>R${(product.price || 0).toFixed(2)}</p>
+                              <div className="price-container">
+                                {product.discountPercentage > 0 && (
+                                  <span className="original-price">
+                                    R${calculateOriginalPrice(product.price || 0, product.discountPercentage)}
+                                  </span>
+                                )}
+                                <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
+                              </div>
                               {product.description && <p className="productDescription">{product.description}</p>}
                               <Link
                                 to={`/produto/${category.title.replace(/\s+/g, "-")}/${product.name.replace(/\s+/g, "-")}`}
@@ -186,7 +201,15 @@ const Lojinha = () => {
                                 {product.discountPercentage > 0 && (
                                   <span className="discount-tag">{product.discountPercentage}% OFF</span>
                                 )}
-                                <p>{product.name} - R${(product.price || 0).toFixed(2)}</p>
+                                <p>{product.name}</p>
+                                <div className="price-container">
+                                  {product.discountPercentage > 0 && (
+                                    <span className="original-price">
+                                      R${calculateOriginalPrice(product.price || 0, product.discountPercentage)}
+                                    </span>
+                                  )}
+                                  <span className="current-price">R${(product.price || 0).toFixed(2)}</span>
+                                </div>
                                 {product.description ? (
                                   <p>{product.description}</p>
                                 ) : (

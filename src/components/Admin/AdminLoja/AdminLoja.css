@@ -1,98 +1,252 @@
-/* Estilos gerais */
-.admin-loja-dashboard {
-  max-width: 900px;
-  margin: 50px auto;
-  padding: 30px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Estilos existentes para o EditBanner */
+.edit-banner {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-.admin-loja-dashboard h2 {
+.edit-banner h2 {
+  font-size: 2rem;
+  font-weight: bold;
   color: #333;
-  font-size: 24px;
+  text-align: center;
   margin-bottom: 20px;
 }
 
-/* Botões */
-.admin-loja-actions {
+/* Container da imagem */
+.image-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Exibe a imagem do banner no topo */
+.banner-preview {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.edit-banner form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  align-items: center;
+}
+
+.edit-banner form input,
+.edit-banner form textarea {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.edit-banner form button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-banner form button:disabled {
+  background-color: #d6d6d6;
+  cursor: not-allowed;
+}
+
+.edit-banner form button:hover {
+  background-color: #0056b3;
+}
+
+/* Novos estilos para o fundo escuro */
+.banner-preview-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
   margin-bottom: 20px;
 }
 
-.admin-loja-actions button,
-.logout-section button {
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s ease-in-out;
-}
-
-.admin-loja-actions button:hover,
-.logout-section button:hover {
-  background: #0056b3;
-  transform: scale(1.05);
-}
-
-/* Logout */
-.logout-section {
-  margin-top: 20px;
-}
-
-/* Estilos para lista de produtos */
-.produtos-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.produto-item {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: 0.3s ease-in-out;
-}
-
-.produto-item:hover {
-  transform: translateY(-5px);
-}
-
-.produto-imagem {
+/* Imagem de fundo do banner */
+.banner-bg-preview {
   width: 100%;
-  height: 180px;
+  max-width: 600px;
+  height: 250px;
   object-fit: cover;
+  border-radius: 8px;
+  filter: brightness(0.5);
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Sobreposição escura para maior contraste */
+.banner-bg-preview::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 8px;
 }
 
-.produto-info {
+/* Ajustes para o nome do arquivo selecionado */
+.file-input-label {
+  display: block;
   margin-top: 10px;
+  font-size: 0.9rem;
+  color: #666;
 }
 
-.produto-actions {
-  margin-top: 10px;
+/* Responsividade para EditBanner */
+@media (max-width: 768px) {
+  .edit-banner {
+    padding: 15px;
+  }
+
+  .banner-preview,
+  .banner-bg-preview {
+    max-width: 100%;
+  }
+
+  .edit-banner form input,
+  .edit-banner form textarea {
+    max-width: 100%;
+  }
+
+  .edit-banner form button {
+    width: 100%;
+  }
+}
+
+/* Estilos para o AdminLogin - Isolados e com nomes únicos */
+.admin-login-wrapper {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f4f4f4;
 }
 
-.produto-actions button {
-  background: #28a745;
-  color: #fff;
+.admin-login-panel {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-login-panel h2 {
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.admin-login-panel .admin-login-input-group {
+  margin-bottom: 15px;
+}
+
+.admin-login-panel .admin-login-input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.admin-login-panel .admin-login-input-group input:focus {
+  border-color: #28a745;
+  outline: none;
+}
+
+.admin-login-panel .admin-login-input-group input:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.admin-login-panel .admin-login-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: #ffffff;
   border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 5px;
+  border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
 }
 
-.produto-actions button:hover {
-  background: #218838;
+.admin-login-panel .admin-login-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.admin-login-panel .admin-login-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.admin-login-panel .admin-login-error {
+  color: #dc3545;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+
+/* Responsividade para AdminLogin */
+@media (max-width: 768px) {
+  .admin-login-panel {
+    max-width: 350px;
+    padding: 15px;
+  }
+
+  .admin-login-panel h2 {
+    font-size: 20px;
+  }
+
+  .admin-login-panel .admin-login-input-group input,
+  .admin-login-panel .admin-login-button {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-login-panel {
+    width: 90%;
+    padding: 10px;
+  }
+
+  .admin-login-panel h2 {
+    font-size: 18px;
+  }
+
+  .admin-login-panel .admin-login-input-group input,
+  .admin-login-panel .admin-login-button {
+    font-size: 13px;
+    padding: 6px;
+  }
+
+  .admin-login-panel .admin-login-error {
+    font-size: 12px;
+  }
 }
