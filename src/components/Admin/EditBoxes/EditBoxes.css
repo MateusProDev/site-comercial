@@ -259,7 +259,7 @@ body {
 
 /* Botão Salvar Tudo */
 button:disabled {
-  background-color: #ccc;
+  background-color: #cccccc3f;
   cursor: not-allowed;
 }
 
