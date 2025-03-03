@@ -15,7 +15,7 @@ const BannerRotativo = () => {
       try {
         const bannersCollection = collection(db, "bannersLojinha");
         const snapshot = await getDocs(bannersCollection);
-        const bannersData = snapshot.docs.map(doc => ({
+        const bannersData = snapshot.docs.map((doc) => ({
           id: doc.id,
           imageUrl: doc.data().imageUrl,
         }));
@@ -29,30 +29,23 @@ const BannerRotativo = () => {
   }, []);
 
   return (
-    <div className="banner-container">
+    <div className="rotativo-container">
       {banners.length > 0 ? (
         <Swiper
-        modules={[Autoplay, Pagination]}
-        autoplay={{ delay: 3000, disableOnInteraction: false }}
-        pagination={{ clickable: true }}
-        loop={true}
-        className="banner-swiper"
-        style={{ width: "100%", height: "350px" }} // Garante que ocupe todo o espaço disponível
-      >
-        {banners.map((banner) => (
-          <SwiperSlide key={banner.id}>
-            <img
-              src={banner.imageUrl}
-              alt="Banner"
-              className="banner-image"
-              style={{ width: "100%", height: "100%" }} // Força a imagem a preencher todo o swiper
-            />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-      
+          modules={[Autoplay, Pagination]}
+          autoplay={{ delay: 3000, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
+          loop={true}
+          className="rotativo-swiper"
+        >
+          {banners.map((banner) => (
+            <SwiperSlide key={banner.id}>
+              <img src={banner.imageUrl} alt="Banner" className="rotativo-image" />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       ) : (
-        <p className="banner-placeholder">Carregando banners...</p>
+        <p className="rotativo-placeholder">Carregando banners...</p>
       )}
     </div>
   );
