@@ -6,7 +6,7 @@ import { doc, getDoc, updateDoc, collection, addDoc } from "firebase/firestore";
 import { useCart } from "../../../context/CartContext/CartContext";
 import "./ProductDetail.css";
 
-const RegisterModal = ({ onClose, onRegister }) => {
+const RegisterModal = ({ onClose, onRegister, rating, comment }) => {
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +28,7 @@ const RegisterModal = ({ onClose, onRegister }) => {
       setSuccess("Cadastro realizado com sucesso!");
       setTimeout(() => {
         setSuccess("");
-        onRegister({ id: userDoc.id, name, whatsapp }); // Passa o usuário cadastrado
+        onRegister({ id: userDoc.id, name, whatsapp }, rating, comment); // Passa o usuário e os dados do comentário
         onClose();
       }, 2000);
     } catch (err) {
@@ -56,7 +56,7 @@ const RegisterModal = ({ onClose, onRegister }) => {
             value={whatsapp}
             onChange={(e) => setWhatsapp(e.target.value)}
           />
-          <button type="submit">Cadastrar</button>
+          <button type="submit">Cadastrar e Comentar</button>
           <button type="button" onClick={onClose}>Cancelar</button>
         </form>
       </div>
@@ -76,7 +76,6 @@ const ProductDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
-  const [tempUser, setTempUser] = useState(null); // Usuário temporário após cadastro
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -144,14 +143,15 @@ const ProductDetail = () => {
       return;
     }
 
-    if (!auth.currentUser && !tempUser) {
-      // Se não autenticado e sem cadastro temporário, abre o modal
+    if (!auth.currentUser) {
+      // Sempre abre o modal para usuários não autenticados
       setRegisterModalOpen(true);
       return;
     }
 
-    const userId = auth.currentUser ? auth.currentUser.uid : tempUser.id;
-    const userName = auth.currentUser ? auth.currentUser.displayName || "Usuário Autenticado" : tempUser.name;
+    // Apenas usuários autenticados chegam aqui
+    const userId = auth.currentUser.uid;
+    const userName = auth.currentUser.displayName || "Usuário Autenticado";
 
     const newRating = {
       userId,
@@ -174,7 +174,6 @@ const ProductDetail = () => {
       setRating(0);
       setComment("");
       setSuccess("Avaliação enviada com sucesso!");
-      setTempUser(null); // Limpa o usuário temporário após o envio
       setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
       setError("Erro ao enviar avaliação.");
@@ -214,9 +213,36 @@ const ProductDetail = () => {
     setSelectedVariant(variant);
   };
 
-  const handleRegister = (newUser) => {
-    setTempUser(newUser); // Armazena o usuário temporário
-    handleRatingSubmit(); // Envia o comentário após o cadastro
+  const handleRegister = async (newUser, rating, comment) => {
+    const userId = newUser.id;
+    const userName = newUser.name;
+
+    const newRating = {
+      userId,
+      userName,
+      stars: rating,
+      comment,
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
+      const firestoreProductKey = productKey.replace(/-/g, " ");
+      const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
+      const productDoc = await getDoc(productDetailRef);
+      const currentRatings = productDoc.exists() && productDoc.data().ratings ? productDoc.data().ratings : [];
+      const updatedRatings = [...currentRatings, newRating];
+
+      await updateDoc(productDetailRef, { ratings: updatedRatings }, { merge: true });
+      setProduct((prev) => ({ ...prev, ratings: updatedRatings }));
+      setRating(0);
+      setComment("");
+      setSuccess("Avaliação enviada com sucesso!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (error) {
+      setError("Erro ao enviar avaliação.");
+      console.error(error);
+    }
   };
 
   if (loading) return <div>Carregando...</div>;
@@ -327,6 +353,8 @@ const ProductDetail = () => {
         <RegisterModal
           onClose={() => setRegisterModalOpen(false)}
           onRegister={handleRegister}
+          rating={rating}
+          comment={comment}
         />
       )}
     </div>
