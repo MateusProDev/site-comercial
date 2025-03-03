@@ -19,7 +19,11 @@ const AdminLoja = () => {
   };
 
   const goToEditWhatsApp = () => {
-    navigate("/admin/edit-whatsapp"); // Nova rota para editar o WhatsApp
+    navigate("/admin/edit-whatsapp");
+  };
+
+  const goToViewUsers = () => {
+    navigate("/admin/view-users");
   };
 
   const goToHome = () => {
@@ -43,7 +47,8 @@ const AdminLoja = () => {
         <button onClick={goToEditLojinhaHeader}>Editar Cabeçalho</button>
         <button onClick={goToBannerAdmin}>Editar Banner</button>
         <button onClick={goToEditProdutos}>Editar Produtos</button>
-        <button onClick={goToEditWhatsApp}>Editar Número do WhatsApp</button> {/* Novo botão */}
+        <button onClick={goToEditWhatsApp}>Editar Número do WhatsApp</button>
+        <button onClick={goToViewUsers}>Ver Usuários Cadastrados</button>
         <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 

@@ -7,7 +7,7 @@ import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
 import LojinhaHeader from "./LojinhaHeader/LojinhaHeader";
 import BannerRotativo from "./BannerRotativo/BannerRotativo";
-import WhatsAppLojinhaButton from "../WhatsAppLojinhaButton/WhatsAppLojinhaButton"; // Importe o componente
+import WhatsAppLojinhaButton from "../WhatsAppLojinhaButton/WhatsAppLojinhaButton";
 import { useCart } from "../../context/CartContext/CartContext";
 import "./Lojinha.css";
 
@@ -18,7 +18,7 @@ const Lojinha = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState({});
   const [loading, setLoading] = useState(true);
-  const [phoneNumber, setPhoneNumber] = useState(""); // Estado compartilhado para o WhatsApp
+  const [phoneNumber, setPhoneNumber] = useState("");
   const { categoria } = useParams();
 
   useEffect(() => {
@@ -27,10 +27,8 @@ const Lojinha = () => {
     const unsubscribe = onSnapshot(productsRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log("Dados carregados do Firestore:", data);
         setCategories(data.categories || {});
       } else {
-        console.log("Documento 'produtos' não encontrado em 'lojinha'");
         setCategories({});
       }
       setLoading(false);
@@ -40,12 +38,11 @@ const Lojinha = () => {
       setLoading(false);
     });
 
-    // Carregar o número do WhatsApp
     const fetchWhatsAppNumber = async () => {
       const docRef = doc(db, "settings", "whatsapp");
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setPhoneNumber(docSnap.data().number || "5585991470709"); // Fallback
+        setPhoneNumber(docSnap.data().number || "5585991470709");
       }
     };
     fetchWhatsAppNumber();
@@ -285,7 +282,7 @@ const Lojinha = () => {
           </section>
         </main>
       </div>
-      <WhatsAppLojinhaButton phoneNumber={phoneNumber} /> {/* Passe o número como prop */}
+      <WhatsAppLojinhaButton phoneNumber={phoneNumber} />
       <Footer />
     </div>
   );

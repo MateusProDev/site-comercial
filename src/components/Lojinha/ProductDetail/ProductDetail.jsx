@@ -2,9 +2,67 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FaShareAlt } from "react-icons/fa";
 import { db, auth } from "../../../firebase/firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, addDoc } from "firebase/firestore";
 import { useCart } from "../../../context/CartContext/CartContext";
 import "./ProductDetail.css";
+
+const RegisterModal = ({ onClose, onRegister }) => {
+  const [name, setName] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name || !whatsapp) {
+      setError("Por favor, preencha nome e WhatsApp.");
+      return;
+    }
+
+    try {
+      const userDoc = await addDoc(collection(db, "users"), {
+        name,
+        whatsapp,
+        timestamp: new Date().toISOString(),
+      });
+      setSuccess("Cadastro realizado com sucesso!");
+      setTimeout(() => {
+        setSuccess("");
+        onRegister({ id: userDoc.id, name, whatsapp }); // Passa o usuário cadastrado
+        onClose();
+      }, 2000);
+    } catch (err) {
+      setError("Erro ao cadastrar. Tente novamente.");
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="register-modal-overlay">
+      <div className="register-modal">
+        <h2>Cadastre-se para Comentar</h2>
+        {error && <p className="error">{error}</p>}
+        {success && <p className="success">{success}</p>}
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Nome"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            type="tel"
+            placeholder="WhatsApp (ex: 5585991470709)"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+          />
+          <button type="submit">Cadastrar</button>
+          <button type="button" onClick={onClose}>Cancelar</button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const ProductDetail = () => {
   const { categoryKey, productKey } = useParams();
@@ -17,6 +75,8 @@ const ProductDetail = () => {
   const [comment, setComment] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
+  const [tempUser, setTempUser] = useState(null); // Usuário temporário após cadastro
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -62,15 +122,15 @@ const ProductDetail = () => {
   }, [categoryKey, productKey]);
 
   const handleAddToCart = (e) => {
-    e.preventDefault(); // Evita comportamento padrão do link
+    e.preventDefault();
     if (product) {
       const itemToAdd = {
         ...product,
         preco: product.price || 0,
         nome: product.name,
-        variant: selectedVariant, // Inclui a variante selecionada
+        variant: selectedVariant,
       };
-      addToCart(itemToAdd); // Chama a função do contexto
+      addToCart(itemToAdd);
       setSuccess("Produto adicionado ao carrinho!");
       setTimeout(() => setSuccess(""), 3000);
     } else {
@@ -79,17 +139,23 @@ const ProductDetail = () => {
   };
 
   const handleRatingSubmit = async () => {
-    if (!auth.currentUser) {
-      setError("Você precisa estar logado para avaliar.");
-      return;
-    }
     if (!rating || !comment) {
       setError("Por favor, selecione uma pontuação e adicione um comentário.");
       return;
     }
 
+    if (!auth.currentUser && !tempUser) {
+      // Se não autenticado e sem cadastro temporário, abre o modal
+      setRegisterModalOpen(true);
+      return;
+    }
+
+    const userId = auth.currentUser ? auth.currentUser.uid : tempUser.id;
+    const userName = auth.currentUser ? auth.currentUser.displayName || "Usuário Autenticado" : tempUser.name;
+
     const newRating = {
-      userId: auth.currentUser.uid,
+      userId,
+      userName,
       stars: rating,
       comment,
       timestamp: new Date().toISOString(),
@@ -99,12 +165,16 @@ const ProductDetail = () => {
       const firestoreCategoryKey = categoryKey.replace(/-/g, " ");
       const firestoreProductKey = productKey.replace(/-/g, " ");
       const productDetailRef = doc(db, "lojinha", `product-details-${firestoreCategoryKey}-${firestoreProductKey}`);
-      const updatedRatings = product.ratings ? [...product.ratings, newRating] : [newRating];
-      await updateDoc(productDetailRef, { ratings: updatedRatings });
+      const productDoc = await getDoc(productDetailRef);
+      const currentRatings = productDoc.exists() && productDoc.data().ratings ? productDoc.data().ratings : [];
+      const updatedRatings = [...currentRatings, newRating];
+
+      await updateDoc(productDetailRef, { ratings: updatedRatings }, { merge: true });
       setProduct((prev) => ({ ...prev, ratings: updatedRatings }));
       setRating(0);
       setComment("");
       setSuccess("Avaliação enviada com sucesso!");
+      setTempUser(null); // Limpa o usuário temporário após o envio
       setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
       setError("Erro ao enviar avaliação.");
@@ -142,6 +212,11 @@ const ProductDetail = () => {
 
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
+  };
+
+  const handleRegister = (newUser) => {
+    setTempUser(newUser); // Armazena o usuário temporário
+    handleRatingSubmit(); // Envia o comentário após o cadastro
   };
 
   if (loading) return <div>Carregando...</div>;
@@ -219,7 +294,7 @@ const ProductDetail = () => {
             <div key={idx} className="rating">
               <div className="stars">{"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}</div>
               <p>{r.comment}</p>
-              <small>{new Date(r.timestamp).toLocaleString()}</small>
+              <small>{new Date(r.timestamp).toLocaleString()} - {r.userName}</small>
             </div>
           ))
         ) : (
@@ -247,6 +322,13 @@ const ProductDetail = () => {
           <button onClick={handleRatingSubmit}>Enviar Avaliação</button>
         </div>
       </div>
+
+      {isRegisterModalOpen && (
+        <RegisterModal
+          onClose={() => setRegisterModalOpen(false)}
+          onRegister={handleRegister}
+        />
+      )}
     </div>
   );
 };

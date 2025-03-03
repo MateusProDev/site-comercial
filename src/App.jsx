@@ -21,6 +21,7 @@ import EditProducts from "./components/Admin/EditProducts/EditProducts";
 import Products from "./components/Lojinha/Products/Products";
 import CategoryProducts from "./components/Lojinha/CategoryProducts/CategoryProducts";
 import ProductDetail from "./components/Lojinha/ProductDetail/ProductDetail";
+import ViewUsers from "./components/ViewUsers/ViewUsers"; // Importe o componente ViewUsers
 import { auth } from "./firebase/firebaseConfig";
 
 const ProtectedRoute = ({ children }) => {
@@ -40,7 +41,7 @@ const App = () => {
           <Route path="/lojinha" element={<Lojinha />} />
           <Route path="/lojinha/produtos" element={<Products />} />
           <Route path="/lojinha/produtos/:categoryKey" element={<CategoryProducts />} />
-          <Route path="/produto/:categoryKey/:productKey" element={<ProductDetail />} /> {/* Corrigido */}
+          <Route path="/produto/:categoryKey/:productKey" element={<ProductDetail />} />
 
           {/* Rotas administrativas protegidas */}
           <Route
@@ -139,6 +140,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/view-users"
+            element={
+              <ProtectedRoute>
+                <ViewUsers />
+              </ProtectedRoute>
+            }
+          /> {/* Nova rota protegida para visualizar usuários */}
 
           {/* Rota de login administrativo */}
           <Route path="/admin/login" element={<AdminLogin />} />
