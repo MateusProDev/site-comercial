@@ -7,25 +7,29 @@ const AdminLoja = () => {
   const navigate = useNavigate();
 
   const goToEditLojinhaHeader = () => {
-    navigate("/loja/admin/edit-lojinhaHeader"); // Rota correta
+    navigate("/loja/admin/edit-lojinhaHeader");
   };
 
   const goToBannerAdmin = () => {
-    navigate("/admin/banner-admin"); // Rota correta
+    navigate("/admin/banner-admin");
   };
 
   const goToEditProdutos = () => {
-    navigate("/admin/edit-products"); // Rota correta ajustada
+    navigate("/admin/edit-products");
+  };
+
+  const goToEditWhatsApp = () => {
+    navigate("/admin/edit-whatsapp"); // Nova rota para editar o WhatsApp
   };
 
   const goToHome = () => {
-    navigate("/lojinha"); // Rota correta
+    navigate("/lojinha");
   };  
 
   const handleLogout = async () => {
     try {
       await auth.signOut();
-      navigate("/loja/login"); // Rota correta
+      navigate("/loja/login");
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
     }
@@ -39,6 +43,7 @@ const AdminLoja = () => {
         <button onClick={goToEditLojinhaHeader}>Editar Cabeçalho</button>
         <button onClick={goToBannerAdmin}>Editar Banner</button>
         <button onClick={goToEditProdutos}>Editar Produtos</button>
+        <button onClick={goToEditWhatsApp}>Editar Número do WhatsApp</button> {/* Novo botão */}
         <button onClick={goToHome}>Voltar para a Home</button>
       </div>
 

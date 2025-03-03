@@ -3,10 +3,11 @@ import { Link, useParams } from "react-router-dom";
 import { FiShoppingBag } from "react-icons/fi";
 import { FaUser, FaHome, FaList } from "react-icons/fa";
 import { db } from "../../firebase/firebaseConfig";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, getDoc } from "firebase/firestore";
 import Footer from "../../components/Footer/Footer";
 import LojinhaHeader from "./LojinhaHeader/LojinhaHeader";
 import BannerRotativo from "./BannerRotativo/BannerRotativo";
+import WhatsAppLojinhaButton from "../WhatsAppLojinhaButton/WhatsAppLojinhaButton"; // Importe o componente
 import { useCart } from "../../context/CartContext/CartContext";
 import "./Lojinha.css";
 
@@ -17,6 +18,7 @@ const Lojinha = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCategories, setExpandedCategories] = useState({});
   const [loading, setLoading] = useState(true);
+  const [phoneNumber, setPhoneNumber] = useState(""); // Estado compartilhado para o WhatsApp
   const { categoria } = useParams();
 
   useEffect(() => {
@@ -38,6 +40,16 @@ const Lojinha = () => {
       setLoading(false);
     });
 
+    // Carregar o número do WhatsApp
+    const fetchWhatsAppNumber = async () => {
+      const docRef = doc(db, "settings", "whatsapp");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setPhoneNumber(docSnap.data().number || "5585991470709"); // Fallback
+      }
+    };
+    fetchWhatsAppNumber();
+
     return () => unsubscribe();
   }, []);
 
@@ -52,7 +64,7 @@ const Lojinha = () => {
       .join("\n");
     const totalValue = total.toFixed(2);
     const whatsappMessage = `Desejo concluir meu pedido:\n\n${message}\n\nTotal: R$${totalValue}\n\nPreencha as informações:\n\nNome:\nEndereço:\nForma de pagamento:\nPix, Débito, Crédito`;
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=5585991470709&text=${encodeURIComponent(whatsappMessage)}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}`;
     window.open(whatsappUrl, "_blank");
   };
 
@@ -102,7 +114,6 @@ const Lojinha = () => {
     }));
   };
 
-  // Função para calcular o preço original se não estiver disponível
   const calculateOriginalPrice = (price, discountPercentage) => {
     if (discountPercentage > 0) {
       return (price / (1 - discountPercentage / 100)).toFixed(2);
@@ -274,6 +285,7 @@ const Lojinha = () => {
           </section>
         </main>
       </div>
+      <WhatsAppLojinhaButton phoneNumber={phoneNumber} /> {/* Passe o número como prop */}
       <Footer />
     </div>
   );
