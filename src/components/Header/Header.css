@@ -24,6 +24,8 @@
 
 /* Botão de menu hambúrguer */
 .header-menu-toggle {
+  width: 70px;
+  box-sizing: border-box;
   background: none;
   border: none;
   font-size: 2rem;
@@ -87,7 +89,7 @@
   .header-menu-toggle {
     display: block; /* Exibe o botão de menu */
     position: absolute;
-    left: 175px; /* Alinha ao canto direito */
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
   }
@@ -159,7 +161,7 @@
 /* Telas muito grandes (>= 1200px) */
 @media (min-width: 1200px) {
   .header {
-    max-width: 1400px;
+    max-width: 100%;
     margin: 0 auto;
   }
 
