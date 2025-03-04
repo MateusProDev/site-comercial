@@ -10,7 +10,6 @@ const CheckoutOptions = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [preferenceId, setPreferenceId] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(null); // Novo estado para método de pagamento
 
   useEffect(() => {
     const fetchPublicKey = async () => {
@@ -33,12 +32,6 @@ const CheckoutOptions = () => {
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handlePaymentMethodSelect = (method) => {
-    setPaymentMethod(method); // Define o método escolhido
-    setPreferenceId(null); // Reseta a preferência anterior
-    setSuccess("");
-  };
-
   const handleMercadoPagoCheckout = async () => {
     setError("");
     setSuccess("");
@@ -53,18 +46,13 @@ const CheckoutOptions = () => {
       return;
     }
 
-    if (!paymentMethod) {
-      setError("Por favor, selecione uma forma de pagamento.");
-      return;
-    }
-
     setLoading(true);
 
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, payerEmail, paymentMethod }), // Envia o método escolhido
+        body: JSON.stringify({ cart, payerEmail }),
       });
 
       if (!response.ok) {
@@ -74,7 +62,7 @@ const CheckoutOptions = () => {
 
       const data = await response.json();
       setPreferenceId(data.id);
-      setSuccess(`Pronto para pagar com ${paymentMethod}!`);
+      setSuccess("Pronto para pagar com Mercado Pago!");
     } catch (err) {
       setError(`Erro ao processar o pagamento: ${err.message}`);
       console.error(err);
@@ -108,33 +96,12 @@ const CheckoutOptions = () => {
             placeholder="Seu e-mail"
             className="email-input"
           />
-          <div className="payment-methods">
-            <h3>Escolha a forma de pagamento:</h3>
-            <button
-              className={`method-btn ${paymentMethod === "Cartão" ? "selected" : ""}`}
-              onClick={() => handlePaymentMethodSelect("Cartão")}
-            >
-              Cartão de Crédito
-            </button>
-            <button
-              className={`method-btn ${paymentMethod === "Pix" ? "selected" : ""}`}
-              onClick={() => handlePaymentMethodSelect("Pix")}
-            >
-              Pix
-            </button>
-            <button
-              className={`method-btn ${paymentMethod === "Boleto" ? "selected" : ""}`}
-              onClick={() => handlePaymentMethodSelect("Boleto")}
-            >
-              Boleto
-            </button>
-          </div>
           <button
             className="mercadopago-btn"
             onClick={handleMercadoPagoCheckout}
             disabled={loading}
           >
-            {loading ? "Processando..." : "Continuar com Pagamento"}
+            {loading ? "Processando..." : "Pagar com Mercado Pago"}
           </button>
           {preferenceId && <Wallet initialization={{ preferenceId }} />}
         </>
