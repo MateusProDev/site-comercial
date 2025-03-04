@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../../../firebase/firebaseConfig";
+import { db } from "../../../firebase/firebaseConfig"; // Ajuste o caminho
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import "./EditMercadoPagoKey.css";
 
 const EditMercadoPagoKey = () => {
   const [publicKey, setPublicKey] = useState("");
+  const [secretKey, setSecretKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -16,9 +17,10 @@ const EditMercadoPagoKey = () => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           setPublicKey(data.publicKey || "");
+          setSecretKey(data.secretKey || "");
         }
       } catch (err) {
-        console.error("Erro ao carregar chave pública:", err);
+        console.error("Erro ao carregar chaves:", err);
       }
     };
     fetchKeys();
@@ -29,11 +31,10 @@ const EditMercadoPagoKey = () => {
     setMessage("");
     try {
       const docRef = doc(db, "settings", "mercadopago");
-      await setDoc(docRef, { publicKey }, { merge: true });
-      setMessage("Chave pública salva com sucesso!");
-      setTimeout(() => setMessage(""), 3000);
+      await setDoc(docRef, { publicKey, secretKey }, { merge: true });
+      setMessage("Chaves salvas com sucesso!");
     } catch (error) {
-      setMessage("Erro ao salvar a chave pública.");
+      setMessage("Erro ao salvar as chaves.");
       console.error(error);
     }
     setLoading(false);
@@ -41,7 +42,7 @@ const EditMercadoPagoKey = () => {
 
   return (
     <div className="edit-mercadopago-key">
-      <h2>Editar Chave Pública do Mercado Pago</h2>
+      <h2>Editar Chaves do Mercado Pago</h2>
       {message && <p className={message.includes("Erro") ? "error" : "success"}>{message}</p>}
       <div className="form-group">
         <label>Chave Pública:</label>
@@ -52,10 +53,18 @@ const EditMercadoPagoKey = () => {
           placeholder="Digite a chave pública"
         />
       </div>
-      <button onClick={handleSaveKeys} disabled={loading || !publicKey}>
-        {loading ? "Salvando..." : "Salvar Chave"}
+      <div className="form-group">
+        <label>Chave Secreta (Access Token):</label>
+        <input
+          type="text"
+          value={secretKey}
+          onChange={(e) => setSecretKey(e.target.value)}
+          placeholder="Digite a chave secreta"
+        />
+      </div>
+      <button onClick={handleSaveKeys} disabled={loading || !publicKey || !secretKey}>
+        {loading ? "Salvando..." : "Salvar Chaves"}
       </button>
-      <p className="note">Nota: A chave secreta deve ser configurada no painel do Vercel.</p>
     </div>
   );
 };
