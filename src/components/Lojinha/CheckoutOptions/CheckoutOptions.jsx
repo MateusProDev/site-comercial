@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useCart } from "../../../context/CartContext/CartContext"; // Ajuste o caminho
-import { db } from "../../../firebase/firebaseConfig"; // Ajuste o caminho
+import { useCart } from "../../../context/CartContext/CartContext";
+import { db } from "../../../firebase/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import "./CheckoutOptions.css";
@@ -13,7 +13,6 @@ const CheckoutOptions = () => {
   const [success, setSuccess] = useState("");
   const [preferenceId, setPreferenceId] = useState(null);
 
-  // Inicializa o Mercado Pago com a chave pública
   useEffect(() => {
     const fetchPublicKey = async () => {
       try {
