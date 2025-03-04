@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "../../../context/CartContext/CartContext";
-import { db } from "../../../firebase/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import "./CheckoutOptions.css";
 
@@ -12,18 +10,19 @@ const CheckoutOptions = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [preferenceId, setPreferenceId] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState(null);
 
   useEffect(() => {
     const fetchPublicKey = async () => {
       try {
-        const docRef = doc(db, "settings", "mercadopago");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const { publicKey } = docSnap.data();
-          initMercadoPago(publicKey, { locale: "pt-BR" });
-        } else {
+        const response = await fetch("/api/get-mercado-pago-key");
+        if (!response.ok) throw new Error("Erro ao carregar chave pública");
+        const { publicKey } = await response.json();
+        if (!publicKey) {
           setError("Chave pública do Mercado Pago não configurada.");
+          return;
         }
+        initMercadoPago(publicKey, { locale: "pt-BR" });
       } catch (err) {
         setError("Erro ao carregar a chave pública do Mercado Pago.");
         console.error(err);
@@ -32,9 +31,20 @@ const CheckoutOptions = () => {
     fetchPublicKey();
   }, []);
 
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const handlePaymentMethodSelect = (method) => {
+    setPaymentMethod(method);
+    setPreferenceId(null);
+    setSuccess("");
+  };
+
   const handleMercadoPagoCheckout = async () => {
-    if (!payerEmail) {
-      setError("Por favor, insira seu e-mail.");
+    setError("");
+    setSuccess("");
+
+    if (!isValidEmail(payerEmail)) {
+      setError("Por favor, insira um e-mail válido.");
       return;
     }
 
@@ -43,25 +53,28 @@ const CheckoutOptions = () => {
       return;
     }
 
+    if (!paymentMethod) {
+      setError("Por favor, selecione uma forma de pagamento.");
+      return;
+    }
+
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, payerEmail }),
+        body: JSON.stringify({ cart, payerEmail, paymentMethod }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Erro ${response.status}: ${response.statusText}`);
+        throw new Error(errorData.error || `Erro ${response.status}`);
       }
 
       const data = await response.json();
       setPreferenceId(data.id);
-      setSuccess("Pronto para pagar com Mercado Pago!");
+      setSuccess(`Pronto para pagar com ${paymentMethod}!`);
     } catch (err) {
       setError(`Erro ao processar o pagamento: ${err.message}`);
       console.error(err);
@@ -95,12 +108,33 @@ const CheckoutOptions = () => {
             placeholder="Seu e-mail"
             className="email-input"
           />
+          <div className="payment-methods">
+            <h3>Escolha a forma de pagamento:</h3>
+            <button
+              className={`method-btn ${paymentMethod === "Cartão" ? "selected" : ""}`}
+              onClick={() => handlePaymentMethodSelect("Cartão")}
+            >
+              Cartão de Crédito
+            </button>
+            <button
+              className={`method-btn ${paymentMethod === "Pix" ? "selected" : ""}`}
+              onClick={() => handlePaymentMethodSelect("Pix")}
+            >
+              Pix
+            </button>
+            <button
+              className={`method-btn ${paymentMethod === "Boleto" ? "selected" : ""}`}
+              onClick={() => handlePaymentMethodSelect("Boleto")}
+            >
+              Boleto
+            </button>
+          </div>
           <button
             className="mercadopago-btn"
             onClick={handleMercadoPagoCheckout}
             disabled={loading}
           >
-            {loading ? "Processando..." : "Pagar com Mercado Pago"}
+            {loading ? "Processando..." : "Continuar com Pagamento"}
           </button>
           {preferenceId && <Wallet initialization={{ preferenceId }} />}
         </>

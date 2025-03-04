@@ -54,3 +54,51 @@
     color: green;
     margin-top: 10px;
   }
+  .checkout-options {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .checkout-error {
+    color: red;
+  }
+  .checkout-success {
+    color: green;
+  }
+  .email-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+  }
+  .payment-methods {
+    margin: 20px 0;
+  }
+  .payment-methods h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .method-btn {
+    padding: 10px 20px;
+    margin: 5px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .method-btn.selected {
+    background: #009ee3;
+    color: white;
+    border-color: #009ee3;
+  }
+  .mercadopago-btn {
+    padding: 10px 20px;
+    background: #009ee3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .mercadopago-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }

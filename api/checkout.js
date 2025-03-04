@@ -1,5 +1,5 @@
-const { db } = require("../src/firebase/firebaseConfig");
-const { doc, getDoc } = require("firebase/firestore");
+const { db } = require("../src/firebase/firebaseAdminConfig");
+const { doc, getDoc } = require("firebase-admin/firestore");
 const mercadopago = require("mercadopago");
 
 module.exports = async (req, res) => {
@@ -7,78 +7,79 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
-  console.log("Requisição recebida:", req.body);
+  if (req.headers.origin !== "https://site-comercial-mateus-ferreiras-projects.vercel.app") {
+    return res.status(403).json({ error: "Origem não permitida" });
+  }
 
-  const { cart, payerEmail } = req.body;
+  const { cart, payerEmail, paymentMethod } = req.body;
 
   if (!cart || !Array.isArray(cart) || cart.length === 0) {
-    console.log("Erro: Carrinho inválido ou vazio");
+    console.error("Erro: Carrinho inválido ou vazio");
     return res.status(400).json({ error: "Carrinho inválido ou vazio" });
   }
 
-  if (!payerEmail || !payerEmail.includes("@")) {
-    console.log("Erro: E-mail inválido");
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail);
+  if (!payerEmail || !isValidEmail) {
+    console.error("Erro: E-mail inválido", payerEmail);
     return res.status(400).json({ error: "E-mail inválido" });
   }
 
+  if (!paymentMethod) {
+    console.error("Erro: Método de pagamento não especificado");
+    return res.status(400).json({ error: "Método de pagamento não especificado" });
+  }
+
   try {
-    console.log("Buscando Access Token no Firestore...");
-    const docRef = doc(db, "settings", "mercadopago");
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      console.log("Erro: Documento 'settings/mercadopago' não encontrado");
+    const accessToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+    if (!accessToken) {
+      console.error("Erro: Access Token não configurado");
       return res.status(400).json({ error: "Chave secreta do Mercado Pago não configurada" });
     }
 
-    const { secretKey } = docSnap.data();
-    if (!secretKey) {
-      console.log("Erro: 'secretKey' não encontrado no documento");
-      return res.status(400).json({ error: "Chave secreta do Mercado Pago não configurada" });
-    }
-    console.log("Access Token obtido com sucesso:", secretKey);
-
-    // Configura o Mercado Pago com o Access Token
     mercadopago.configure({
-      access_token: secretKey,
+      access_token: accessToken,
     });
 
-    // Mapeia os itens do carrinho
     const items = cart.map((item) => {
       const unitPrice = parseFloat(item.preco || item.price || 0);
-      if (isNaN(unitPrice)) {
-        console.log("Erro: Preço inválido para item:", item);
-        throw new Error("Preço inválido no carrinho");
+      if (isNaN(unitPrice) || unitPrice <= 0) {
+        console.error("Erro: Preço inválido ou zero para item:", item);
+        throw new Error("Preço inválido ou zero no carrinho");
       }
       return {
         title: item.nome || "Produto sem nome",
         unit_price: unitPrice,
-        quantity: 1,
-        currency_id: "BRL", // Adicionado para produção
+        quantity: item.quantidade ? parseInt(item.quantidade) : 1,
+        currency_id: "BRL",
       };
     });
 
-    console.log("Itens do carrinho mapeados:", items);
+    let paymentMethodsConfig = {};
+    if (paymentMethod === "Cartão") {
+      paymentMethodsConfig = { excluded_payment_types: [{ id: "ticket" }, { id: "pix" }] };
+    } else if (paymentMethod === "Pix") {
+      paymentMethodsConfig = { excluded_payment_types: [{ id: "ticket" }, { id: "credit_card" }] };
+    } else if (paymentMethod === "Boleto") {
+      paymentMethodsConfig = { excluded_payment_types: [{ id: "pix" }, { id: "credit_card" }] };
+    }
 
-    // Cria a preferência de pagamento
+    const baseUrl = process.env.REACT_APP_BASE_URL || "https://site-comercial-mateus-ferreiras-projects.vercel.app";
     const preference = {
       items,
       payer: { email: payerEmail },
+      payment_methods: paymentMethodsConfig,
       back_urls: {
-        success: "https://site-comercial-ten.vercel.app/success",
-        failure: "https://site-comercial-ten.vercel.app/failure",
-        pending: "https://site-comercial-ten.vercel.app/pending",
+        success: `${baseUrl}/success`,
+        failure: `${baseUrl}/failure`,
+        pending: `${baseUrl}/pending`,
       },
       auto_return: "approved",
     };
 
-    console.log("Criando preferência no Mercado Pago...");
     const response = await mercadopago.preferences.create(preference);
-    console.log("Preferência criada com sucesso:", response.body.id);
-
     return res.status(200).json({ id: response.body.id });
   } catch (error) {
-    console.error("Erro detalhado ao criar preferência:", error.message, error.stack);
+    console.error("Erro ao criar preferência:", error.message, error.stack);
     return res.status(500).json({ error: error.message || "Erro interno ao criar a preferência" });
   }
 };

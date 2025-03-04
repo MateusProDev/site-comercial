@@ -1,21 +1,9 @@
-// pages/api/get-mercado-pago-key.js
-import { db } from "../../../firebase/firebase"; // Certifique-se de que o caminho está correto
-import { doc, getDoc } from "firebase/firestore"; // Funções para acessar o Firestore
-
 export default async function handler(req, res) {
   try {
-    // Referência ao documento de configuração das chaves
-    const docRef = doc(db, "settings", "mercadopago");
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
+    const publicKey = process.env.MERCADO_PAGO_PUBLIC_KEY;
+    if (!publicKey) {
       return res.status(400).json({ error: "Chave pública do Mercado Pago não configurada." });
     }
-
-    // Recuperando a chave pública
-    const { publicKey } = docSnap.data();
-    
-    // Retorna apenas a chave pública para o frontend
     return res.json({ publicKey });
   } catch (error) {
     console.error("Erro ao obter chave pública:", error.message);
