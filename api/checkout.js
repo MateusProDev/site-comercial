@@ -34,9 +34,9 @@ export default async function handler(req, res) {
         payer: { email: payerEmail },
         items,
         back_urls: {
-          success: "http://localhost:3000/lojinha/sucesso",
-          failure: "http://localhost:3000/lojinha/falha",
-          pending: "http://localhost:3000/lojinha/pendente",
+          success: "https://site-comercial-ten.vercel.app/lojinha/sucesso",
+          failure: "https://site-comercial-ten.vercel.app/lojinha/falha",
+          pending: "https://site-comercial-ten.vercel.app/lojinha/pendente",
         },
         auto_return: "approved",
       };
