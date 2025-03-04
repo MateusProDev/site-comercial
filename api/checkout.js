@@ -1,4 +1,4 @@
-const { db } = require("../src/firebase/firebaseConfig"); // Ajuste o caminho
+const { db } = require("../src/firebase/firebaseConfig");
 const { doc, getDoc } = require("firebase/firestore");
 const mercadopago = require("mercadopago");
 
@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
       console.log("Erro: 'secretKey' não encontrado no documento");
       return res.status(400).json({ error: "Chave secreta do Mercado Pago não configurada" });
     }
-    console.log("Access Token obtido com sucesso");
+    console.log("Access Token obtido com sucesso:", secretKey);
 
     // Configura o Mercado Pago com o Access Token
     mercadopago.configure({
@@ -54,6 +54,7 @@ module.exports = async (req, res) => {
         title: item.nome || "Produto sem nome",
         unit_price: unitPrice,
         quantity: 1,
+        currency_id: "BRL", // Adicionado para produção
       };
     });
 
@@ -64,15 +65,9 @@ module.exports = async (req, res) => {
       items,
       payer: { email: payerEmail },
       back_urls: {
-        success: process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/success`
-          : "http://localhost:3000/success",
-        failure: process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/failure`
-          : "http://localhost:3000/failure",
-        pending: process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/pending`
-          : "http://localhost:3000/pending",
+        success: "https://site-comercial-ten.vercel.app/success",
+        failure: "https://site-comercial-ten.vercel.app/failure",
+        pending: "https://site-comercial-ten.vercel.app/pending",
       },
       auto_return: "approved",
     };
@@ -84,6 +79,6 @@ module.exports = async (req, res) => {
     return res.status(200).json({ id: response.body.id });
   } catch (error) {
     console.error("Erro detalhado ao criar preferência:", error.message, error.stack);
-    return res.status(500).json({ error: error.message || "Erro ao criar a preferência de pagamento" });
+    return res.status(500).json({ error: error.message || "Erro interno ao criar a preferência" });
   }
 };
