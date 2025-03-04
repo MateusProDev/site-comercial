@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { db } from "../../../firebase/firebase"; // Importe o Firestore
-import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../../firebase/firebase"; // Firestore
+import { doc, setDoc } from "firebase/firestore"; // Funções Firestore
 import "./EditMercadoPagoKey.css";
 
 const EditMercadoPagoKey = () => {

@@ -25,8 +25,14 @@ const CheckoutOptions = () => {
     setError("");
     setSuccess("");
 
+    // URL da API dependendo do ambiente (desenvolvimento ou produção)
+    const baseURL =
+      process.env.NODE_ENV === "production"
+        ? "https://site-comercial-ten.vercel.app/api/checkout"
+        : "http://localhost:3000/api/checkout";
+
     try {
-      const response = await fetch("/api/checkout", {
+      const response = await fetch(baseURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cart, payerEmail }), // Removido `total`

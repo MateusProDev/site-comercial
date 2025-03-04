@@ -6,7 +6,20 @@ let tempKeys = { publicKey: "", secretKey: "" };
 export default async function handler(req, res) {
   if (req.method === "POST") {
     try {
-      const { publicKey, secretKey } = req.body;
+      const { cart, payerEmail, publicKey, secretKey } = req.body;
+
+      // Validação de dados de entrada
+      if (!cart || cart.length === 0) {
+        return res.status(400).json({ error: "Carrinho vazio." });
+      }
+
+      if (!payerEmail) {
+        return res.status(400).json({ error: "E-mail do pagador é necessário." });
+      }
+
+      if (!publicKey || !secretKey) {
+        return res.status(400).json({ error: "Chaves do Mercado Pago são necessárias." });
+      }
 
       // Armazenando as chaves temporariamente no servidor
       tempKeys.publicKey = publicKey;
@@ -16,12 +29,6 @@ export default async function handler(req, res) {
       mercadopago.configure({
         access_token: secretKey, // Usando a chave secreta para autenticação
       });
-
-      const { cart, payerEmail } = req.body;
-
-      if (!cart || cart.length === 0) {
-        return res.status(400).json({ error: "Carrinho vazio." });
-      }
 
       // Mapeando os itens corretamente para o Mercado Pago
       const items = cart.map((item) => ({
@@ -41,9 +48,14 @@ export default async function handler(req, res) {
         auto_return: "approved",
       };
 
+      console.log("Criando a preferência de pagamento:", preference);
+
       const response = await mercadopago.preferences.create(preference);
+      console.log("Resposta do Mercado Pago:", response.body); // Log da resposta
+
       return res.json({ id: response.body.id }); // Retorna o ID da preferência para o frontend
     } catch (error) {
+      console.error("Erro no servidor:", error);
       return res.status(500).json({ error: error.message });
     }
   } else if (req.method === "GET") {
