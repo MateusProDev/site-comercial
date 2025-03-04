@@ -55,8 +55,8 @@ export default async function handler(req, res) {
 
       return res.json({ id: response.body.id }); // Retorna o ID da preferência para o frontend
     } catch (error) {
-      console.error("Erro no servidor:", error);
-      return res.status(500).json({ error: error.message });
+      console.error("Erro no servidor:", error.message);
+      return res.status(500).json({ error: "Erro ao criar preferência de pagamento: " + error.message });
     }
   } else if (req.method === "GET") {
     // Caso você queira acessar as chaves temporárias armazenadas
