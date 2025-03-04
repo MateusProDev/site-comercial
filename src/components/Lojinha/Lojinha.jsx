@@ -12,7 +12,7 @@ import { useCart } from "../../context/CartContext/CartContext";
 import "./Lojinha.css";
 
 const Lojinha = () => {
-  const { cart, total, addToCart, removeFromCart } = useCart();
+  const { cart, total, removeFromCart } = useCart(); // Removido addToCart
   const [isCartOpen, setCartOpen] = useState(false);
   const [categories, setCategories] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,7 +52,7 @@ const Lojinha = () => {
 
   const handleCartToggle = () => setCartOpen(!isCartOpen);
 
-  const handleFinalizePurchase = () => {
+  const handleFinalizePurchaseWhatsApp = () => {
     const message = cart
       .map((item) => {
         const variantDetails = item.variant ? ` (Cor: ${item.variant.color}, Tamanho: ${item.variant.size})` : "";
@@ -272,7 +272,16 @@ const Lojinha = () => {
             </div>
             <div className="totalCarrinho">
               <p><strong>Total:</strong> R${total.toFixed(2)}</p>
-              <button className="btnCar" onClick={handleFinalizePurchase}>Finalizar Compra</button>
+              {cart.length > 0 && (
+                <div className="checkout-buttons">
+                  <button className="btnCar whatsapp-btn" onClick={handleFinalizePurchaseWhatsApp}>
+                    Finalizar via WhatsApp
+                  </button>
+                  <Link to="/checkout" className="btnCar mercadopago-btn">
+                    Finalizar Online
+                  </Link>
+                </div>
+              )}
             </div>
             <div className="cartLoginAdmin">
               <Link to="/loja/login" className="adminLink">

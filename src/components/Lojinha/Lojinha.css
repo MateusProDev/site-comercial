@@ -999,3 +999,36 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.checkout-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnCar {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none; /* Para o Link */
+  display: inline-block;
+}
+
+.whatsapp-btn {
+  background-color: #25d366;
+}
+
+.whatsapp-btn:hover {
+  background-color: #1ebe57;
+}
+
+.mercadopago-btn {
+  background-color: #009ee3;
+}
+
+.mercadopago-btn:hover {
+  background-color: #007bb5;
+}
