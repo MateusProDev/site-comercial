@@ -10,7 +10,7 @@ const CheckoutOptions = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [preferenceId, setPreferenceId] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState(null); // Novo estado para método de pagamento
 
   useEffect(() => {
     const fetchPublicKey = async () => {
@@ -34,8 +34,8 @@ const CheckoutOptions = () => {
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handlePaymentMethodSelect = (method) => {
-    setPaymentMethod(method);
-    setPreferenceId(null);
+    setPaymentMethod(method); // Define o método escolhido
+    setPreferenceId(null); // Reseta a preferência anterior
     setSuccess("");
   };
 
@@ -64,7 +64,7 @@ const CheckoutOptions = () => {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, payerEmail, paymentMethod }),
+        body: JSON.stringify({ cart, payerEmail, paymentMethod }), // Envia o método escolhido
       });
 
       if (!response.ok) {
