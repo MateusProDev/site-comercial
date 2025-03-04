@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { FiShoppingBag } from "react-icons/fi";
+import { FiShoppingBag } from "react-icons/fi"; // Corrigido: Importado de 'react-icons/fi'
 import { FaUser, FaHome, FaList } from "react-icons/fa";
 import { db } from "../../firebase/firebaseConfig";
 import { doc, onSnapshot, getDoc } from "firebase/firestore";
@@ -12,7 +12,7 @@ import { useCart } from "../../context/CartContext/CartContext";
 import "./Lojinha.css";
 
 const Lojinha = () => {
-  const { cart, total, removeFromCart } = useCart(); // Removido addToCart
+  const { cart, total, removeFromCart } = useCart();
   const [isCartOpen, setCartOpen] = useState(false);
   const [categories, setCategories] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,7 +123,6 @@ const Lojinha = () => {
   return (
     <div className="lojinhaContainer">
       <LojinhaHeader logo="/logo.png" title="Bem-vindo à Lojinha" />
-
       <div className="boxCar" onClick={handleCartToggle}>
         <FiShoppingBag className="cartIcon" />
         {cart.length > 0 && <span className="cartCount">{cart.length}</span>}
@@ -162,7 +161,7 @@ const Lojinha = () => {
                 return (
                   <div key={category.title} className="category-section">
                     <h2>
-                      {categoria ? category.title : (category.title === "Destaque" ? "Produtos em Destaque" : category.title)}
+                      {categoria ? category.title : category.title === "Destaque" ? "Produtos em Destaque" : category.title}
                     </h2>
                     {category.title === "Destaque" && !categoria ? (
                       <div className="highlightCarouselWrapper">
